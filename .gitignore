@@ -1,0 +1,6 @@
+*.pyc
+2019_*
+*~
+*.ipynb
+models/*
+plots/*
