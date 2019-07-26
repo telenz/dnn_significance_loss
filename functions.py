@@ -2,6 +2,7 @@ import pandas
 import numpy as np
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import ConfigParser
 
 config = ConfigParser.ConfigParser()
@@ -29,10 +30,12 @@ def prepare_data():
     input_dim = len(features)
 
     # Pre-process your data: scale mean to 0 and variance to 1 for all input variables
-    normalized_X = preprocessing.normalize(X)
+    ss = StandardScaler()
+    X_scaled = pandas.DataFrame(ss.fit_transform(X),columns = X.columns, index = X.index) # addinf index =... is very important since wo the new df would have new indices which makes a concat later impossible
+    #normalized_X = preprocessing.normalize(X)
 
     # Split dataset into test and training set -> use 30% for final testing
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.30, random_state=1142)
+    X_train, X_test, Y_train, Y_test = train_test_split(X_scaled, Y, test_size=0.30, random_state=1143)
 
     return X_train, X_test, Y_train, Y_test
 
