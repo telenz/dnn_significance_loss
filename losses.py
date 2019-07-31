@@ -43,3 +43,21 @@ def asimovLossInvert(expectedSignal,expectedBkgd,systematic):
 
 
     return sigLoss
+
+
+def asimovLossInvertWithReg(expectedSignal,expectedBkgd,systematic):
+
+    def sigLoss(y_true,y_pred):
+
+        sigWeight = expectedSignal/K.sum(y_true)
+        bkgWeight = expectedBkgd/K.sum(1-y_true)
+        s = sigWeight*K.sum(y_pred*y_true)
+        b = bkgWeight*K.sum(y_pred*(1-y_true))
+        sigB=systematic*b
+        sigma_reg = 1.8410548  # this is  68% CL from the Neyman construction for N=0 -> thus the lowest statistical uncertainty that can be achieved (see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars)
+        sigB = K.sqrt(sigB*sigB + sigma_reg*sigma_reg)
+
+        return 1./(2*((s+b)*K.log((s+b)*(b+sigB*sigB)/(b*b+(s+b)*sigB*sigB))-b*b*K.log(1+sigB*sigB*s/(b*(b+sigB*sigB)))/(sigB*sigB)))
+
+
+    return sigLoss
