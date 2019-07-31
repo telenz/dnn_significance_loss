@@ -121,7 +121,7 @@ def plot_val_train_loss(history):
                 'Validation Loss : ' + str(round( min(history.history["val_loss"]) ,4)) ])
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    #plt.yscale('log')
+    plt.yscale('log')
     plt.show(block=False);
     if not os.path.exists('plots'):
         os.makedirs('plots')
