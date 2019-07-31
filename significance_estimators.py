@@ -29,7 +29,7 @@ def s_over_sqrt_of_b(s,b):
 
 
 def z_asimov_with_reg(s, b, sys_rel=0.000001):  # sys_rel should be given as relative uncertainty -> sigma_b = sys_rel * b
-    sigma_reg = 10 #1.8410548  # this is  68% CL from the Neyman construction for N=0 -> thus the lowest statistical uncertainty that can be achieved (see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars)
+    sigma_reg = 1.8410548  # this is  68% CL from the Neyman construction for N=0 -> thus the lowest statistical uncertainty that can be achieved (see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars)
     sigma_b = sqrt(sys_rel*sys_rel*b*b + sigma_reg*sigma_reg)
     return sqrt( 2.0*(s+b)*log((s+b)*( b+sigma_b*sigma_b)/( (b*b)+(s+b)*(sigma_b*sigma_b)))- 2.0*b*b/(sigma_b*sigma_b)*log( 1 + s*sigma_b*sigma_b/(b*(b+sigma_b*sigma_b))))
 
