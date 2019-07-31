@@ -16,7 +16,7 @@ def significanceLoss(expectedSignal,expectedBkgd):
 
     return sigLoss
 
-def paperLoss(expectedSignal,expectedBkgd):
+def paperLoss(expectedSignal,expectedBkgd,systematic):
 
     def sigLoss(y_true,y_pred):
 
@@ -26,5 +26,20 @@ def paperLoss(expectedSignal,expectedBkgd):
         b = bkgWeight*K.sum(y_pred*(1-y_true))
 
         return (s+b)/(s*s + K.epsilon())
+
+    return sigLoss
+
+def asimovLossInvert(expectedSignal,expectedBkgd,systematic):
+
+    def sigLoss(y_true,y_pred):
+
+        sigWeight = expectedSignal/K.sum(y_true)
+        bkgWeight = expectedBkgd/K.sum(1-y_true)
+        s = sigWeight*K.sum(y_pred*y_true)
+        b = bkgWeight*K.sum(y_pred*(1-y_true))
+        sigB=systematic*b
+
+        return 1./(2*((s+b)*K.log((s+b)*(b+sigB*sigB)/(b*b+(s+b)*sigB*sigB))-b*b*K.log(1+sigB*sigB*s/(b*(b+sigB*sigB)))/(sigB*sigB)))
+
 
     return sigLoss
