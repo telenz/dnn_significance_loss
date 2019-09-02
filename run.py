@@ -39,7 +39,7 @@ X_train, X_test, Y_train, Y_test = fcn.prepare_data()
 #-----------------------
 model = keras.models.Sequential()
 model.add(keras.layers.Dense(23, input_shape = (X_train.shape[1],), activation='relu'))
-model.add(keras.layers.Dense(2, activation='sigmoid'))
+model.add(keras.layers.Dense(2, activation='softmax'))
 
 # Define callbacks
 monitor_variable = 'val_loss'
