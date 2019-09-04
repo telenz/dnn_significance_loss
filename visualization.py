@@ -57,6 +57,7 @@ def plot_significances(df_test_with_pred, weight_name):
    asimov_sys_0p3_with_reg  = sig.asimov_with_reg(0.3)
    asimov_sys_0p5_with_reg  = sig.asimov_with_reg(0.5)
 
+   plt.plot(bin_centers, sig.AMS(s,b),              color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p01(s,b),      color=color4, linewidth=2.0, label='Z_asimov (sys=0.01) : ' + str(round(max(asimov_sys_0p01(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p1(s,b),       color=color3, linewidth=2.0, label='Z_asimov (sys=0.10) : ' + str(round(max(asimov_sys_0p1(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p3(s,b),       color=color5, linewidth=2.0, label='Z_asimov (sys=0.30) : ' + str(round(max(asimov_sys_0p3(s,b)),1)) )
