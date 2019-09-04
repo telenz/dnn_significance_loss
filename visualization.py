@@ -23,7 +23,7 @@ color15 = "#CCFFCC";
 
 plt.rcParams.update({'font.size': 20})
 
-def plot_significances(df_test_with_pred):
+def plot_significances(df_test_with_pred, weight_name):
    
    df_sig = df_test_with_pred.loc[df_test_with_pred['signal']==1]
    df_bkg = df_test_with_pred.loc[df_test_with_pred['signal']==0]
@@ -35,8 +35,8 @@ def plot_significances(df_test_with_pred):
    plt.title('Classification Power')
    plt.yscale('log')
    n_bins = 500
-   h_bkg = plt.hist(df_bkg['pred_prob'], n_bins, facecolor=color1, alpha=0.6, cumulative=-1, weights=df_bkg['final_weight'])
-   h_sig = plt.hist(df_sig['pred_prob'], n_bins, facecolor=color2, alpha=0.6, cumulative=-1, weights=df_sig['final_weight'])
+   h_bkg = plt.hist(df_bkg['pred_prob'], n_bins, facecolor=color1, alpha=0.6, cumulative=-1, weights=df_bkg[weight_name])
+   h_sig = plt.hist(df_sig['pred_prob'], n_bins, facecolor=color2, alpha=0.6, cumulative=-1, weights=df_sig[weight_name])
    plt.legend(['Background','Signal'])
    plt.savefig("plots/cumulative_classifier_plot.png")
    
@@ -89,8 +89,8 @@ def plot_prediction(df_test_with_pred):
    plt.ylabel('Events')
    plt.yscale('log')
    plt.title('Classification Power')
-   n, bins, patches = plt.hist(df_bkg['pred_prob'], 50, facecolor=color1, alpha=0.5)#, weights=df_bkg['final_weight'])
-   n, bins, patches = plt.hist(df_sig['pred_prob'], 50, facecolor=color2, alpha=0.5)#, weights=df_sig['final_weight'])
+   n, bins, patches = plt.hist(df_bkg['pred_prob'], 50, facecolor=color1, alpha=0.5, normed=True)
+   n, bins, patches = plt.hist(df_sig['pred_prob'], 50, facecolor=color2, alpha=0.5, normed=True)
 
    plt.legend(['Background','Signal'])
 
