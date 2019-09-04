@@ -37,3 +37,15 @@ def z_asimov_with_reg(s, b, sys_rel=0.000001):  # sys_rel should be given as rel
 def asimov_with_reg(sys = 0.1):
     return lambda s,b : z_asimov_with_reg(s,b,sys)
     
+
+def AMS(s, b):
+    """ Approximate Median Significance defined as:
+        AMS = sqrt(
+                2 { (s + b + b_r) log[1 + (s/(b+b_r))] - s}
+              )
+    where b_r = 10, b = background, s = signal, log is natural logarithm """
+
+    br = 10.0
+    radicand = 2 *( (s+b+br) * log(1.0 + s/(b+br)) -s)
+
+    return sqrt(radicand)
