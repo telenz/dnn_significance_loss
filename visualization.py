@@ -34,7 +34,7 @@ def plot_significances(df_test_with_pred, weight_name):
    plt.xlabel('NN probability')
    plt.title('Classification Power')
    plt.yscale('log')
-   n_bins = 500
+   n_bins = 250
    h_bkg = plt.hist(df_bkg['pred_prob'], n_bins, facecolor=color1, alpha=0.6, cumulative=-1, weights=df_bkg[weight_name])
    h_sig = plt.hist(df_sig['pred_prob'], n_bins, facecolor=color2, alpha=0.6, cumulative=-1, weights=df_sig[weight_name])
    plt.legend(['Background','Signal'])
@@ -100,7 +100,7 @@ def plot_prediction(df_test_with_pred):
        os.makedirs('plots')
    plt.savefig("plots/classification.png")
 
-def plot_val_train_loss(history):
+def plot_val_train_loss(history, plot_log = True):
 
     color1 = '#adbc8a' #'#53bab0'
     color2 = '#fbc96d' #'#ffa147'
@@ -122,7 +122,7 @@ def plot_val_train_loss(history):
                 'Validation Loss : ' + str(round( min(history.history["val_loss"]) ,4)) ])
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.yscale('log')
+    if plot_log: plt.yscale('log')
     plt.show(block=False);
     if not os.path.exists('plots'):
         os.makedirs('plots')
