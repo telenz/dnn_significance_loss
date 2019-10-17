@@ -7,10 +7,11 @@ def susy(num_inputs, num_outputs):
     return model
 
 def susy_2(num_inputs, num_outputs):
-    model = keras.models.Sequential()
-    model.add(keras.layers.Dense(23, input_shape = (num_inputs,), activation='relu'))
-    model.add(keras.layers.Dense(23, activation='relu'))
-    model.add(keras.layers.Dense(num_outputs,activation='softmax'))
+    input_  = keras.layers.Input( (num_inputs,) )
+    output_ = keras.layers.Dense(units=23,activation='relu')(input_)
+    output_ = keras.layers.Dense(units=23,activation='relu')(output_)
+    output_ = keras.layers.Dense(units=2,activation='softmax')(output_)
+    model = keras.models.Model( inputs=input_, outputs=output_)
     return model
 
 def susy_2_with_do(num_inputs, num_outputs):
@@ -22,23 +23,11 @@ def susy_2_with_do(num_inputs, num_outputs):
     model.add(keras.layers.Dense(num_outputs,activation='softmax'))
     return model
 
-
-#     model = Sequential()
-#     model.add(
-#         Dense(
-#             300, kernel_initializer="glorot_normal", activation="tanh",
-#             kernel_regularizer=l2(1e-4),
-#             input_dim=num_inputs))
-#     model.add(
-#         Dense(
-#             300, kernel_initializer="glorot_normal", activation="tanh",
-#             kernel_regularizer=l2(1e-4)))
-#     model.add(
-#         Dense(
-#             300, kernel_initializer="glorot_normal", activation="tanh",
-#             kernel_regularizer=l2(1e-4)))
-#     model.add(
-#         Dense(
-#             num_outputs, kernel_initializer="glorot_normal", activation="softmax"))
-#     model.compile(loss="mean_squared_error", optimizer=Adam(), metrics=['accuracy'])
-# return model
+def model_for_weights(num_inputs, num_outputs):
+    input_        = keras.layers.Input( (num_inputs,) )
+    input_weights = keras.layers.Input( (1,) )
+    output_ = keras.layers.Dense(units=23,activation='relu')(input_)
+    output_ = keras.layers.Dense(units=23,activation='relu')(output_)
+    output_ = keras.layers.Dense(units=2,activation='softmax')(output_)
+    model = keras.models.Model( inputs=[input_,input_weights],outputs=output_)
+    return model, input_weights
