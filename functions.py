@@ -126,3 +126,37 @@ def add_train_weights(data):
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
+
+from functools import partial,update_wrapper
+def wrapped_partial(func, *args, **kwargs):
+    partial_func = partial(func, *args, **kwargs)
+    update_wrapper(partial_func, func)
+    return partial_func
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+# def encode_weights(y_true_as_pd_series, weights_as_pd_series):
+
+#     y_true_as_pd_series = y_true_as_pd_series.replace(0,-1)
+#     #y_true_as_pd_series = y_true_as_pd_series.multiply(weights_as_pd_series)
+#     #y_true_as_pd_series = y_true_as_pd_series.multiply(2)
+#     y_true_as_pd_series = 2*y_true_as_pd_series
+
+#     return y_true_as_pd_series.to_frame("signal")
+
+# # ------------------------------------------------------------------------------------------------------------
+# # ------------------------------------------------------------------------------------------------------------
+
+# def decode_weights(y_true_as_pd_df):
+
+#     print(type(y_true_as_pd_df))
+
+#     weights = abs(y_true_as_pd_df[["signal"]])
+#     y_true_as_pd_df["signal"]=y_true_as_pd_df["signal"].divide(weights["signal"])
+#     y_true_as_pd_df["signal"] = (y_true_as_pd_df["signal"]+1)/2.
+
+#     return y_true_as_pd_df, weights
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
