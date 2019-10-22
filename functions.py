@@ -4,9 +4,7 @@ from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import ConfigParser
-
-config = ConfigParser.ConfigParser()
-config.read('keras.cfg')
+import keras
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
@@ -74,7 +72,7 @@ def prepare_df(data, features):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def make_prediction(model, X_test, Y_test):
+def make_prediction(model, X_test, Y_test, config):
 
     s_exp = float(config.get('PARAMETERS','sig_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
     b_exp = float(config.get('PARAMETERS','bkg_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
@@ -97,12 +95,14 @@ def make_prediction(model, X_test, Y_test):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def make_prediction_higgs(model, X_test, Y_test, features):
+def make_prediction_higgs(model, X_test, Y_test, features, config):
 
     df_test_with_pred = pandas.concat([X_test,Y_test], axis=1)
-
     # Predict the classes for the test data
-    prediction = model.predict(X_test[features], batch_size=int(config.get('KERAS','batch_size')))[:,1]
+    if isinstance(model.input, list):
+        prediction = model.predict([X_test[features].values , X_test["Weight"].values], batch_size=int(config.get('KERAS','batch_size')))[:,1]
+    else:
+        prediction = model.predict(X_test[features].values, batch_size=int(config.get('KERAS','batch_size')))[:,1]
     df_test_with_pred['pred_prob'] = prediction
 
     return df_test_with_pred
@@ -132,6 +132,38 @@ def wrapped_partial(func, *args, **kwargs):
     partial_func = partial(func, *args, **kwargs)
     update_wrapper(partial_func, func)
     return partial_func
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def define_callbacks(config):
+    cb = keras.callbacks.EarlyStopping(
+        monitor=config.get('KERAS','monitor_variable'),
+        patience=int(config.get('KERAS','patience')),
+        verbose=1,
+        restore_best_weights=True)
+    return cb
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def train_model(model, X_train, Y_train, features, cb_list, config):
+
+    if isinstance(model.input, list):
+        x = [X_train[features].values , X_train["Weight"].values]
+    else:
+        x = X_train[features].values
+
+    history =  model.fit(x,
+                         keras.utils.np_utils.to_categorical(Y_train.values),
+                         epochs           = int(config.get('KERAS','epochs')),
+                         batch_size       = int(config.get('KERAS','batch_size')),
+                         validation_split = float(config.get('KERAS','validation_split')),
+                         #sample_weight = X_train['train_weight'].values,
+                         sample_weight = X_train['Weight'].values,
+                         callbacks        = cb_list)
+
+    return history
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
