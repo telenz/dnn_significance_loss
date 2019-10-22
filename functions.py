@@ -147,20 +147,24 @@ def define_callbacks(config):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def train_model(model, X_train, Y_train, features, cb_list, config):
+def train_model(model, X_train, Y_train, features, cb_list, config, sample_weights = ''):
 
     if isinstance(model.input, list):
         x = [X_train[features].values , X_train["Weight"].values]
     else:
         x = X_train[features].values
 
+    if sample_weights is not '':
+        weights_ =  X_train[sample_weights].values
+    else:
+        weights_ = None
+
     history =  model.fit(x,
                          keras.utils.np_utils.to_categorical(Y_train.values),
                          epochs           = int(config.get('KERAS','epochs')),
                          batch_size       = int(config.get('KERAS','batch_size')),
                          validation_split = float(config.get('KERAS','validation_split')),
-                         #sample_weight = X_train['train_weight'].values,
-                         sample_weight = X_train['Weight'].values,
+                         sample_weight    = weights_,
                          callbacks        = cb_list)
 
     return history
