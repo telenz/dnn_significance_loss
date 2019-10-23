@@ -24,26 +24,27 @@ def significanceLoss( expectedSignal=1 , expectedBkgd=1 , systematics_not_used=0
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def paperLoss(expectedSignal,expectedBkgd,systematic):
+def paperLoss(systematic):
 
-    def sigLoss(y_true,y_pred):
+    def sigLoss(y_true, y_pred, sample_weight):
 
         # Print y_true and y_pred
         # y_true = tf.Print(y_true,[y_true],"y_true = ",summarize=10)
         # y_pred = tf.Print(y_pred,[y_pred],"y_pred = ",summarize=10)
 
-        # y_pred = y_pred[:,0]
-        # y_true = y_true[:,0]
+        y_pred = y_pred[:,1]
+        y_true = y_true[:,1]
 
         # Print y_true and y_pred
         # y_true = tf.Print(y_true,[y_true],"y_true = ",summarize=10)
         # y_pred = tf.Print(y_pred,[y_pred],"y_pred = ",summarize=10)
 
         # Calculate s and b
-        sigWeight = expectedSignal/K.sum(y_true)
-        bkgWeight = expectedBkgd/K.sum(1-y_true)
-        s = sigWeight*K.sum(y_pred*y_true)
-        b = bkgWeight*K.sum(y_pred*(1-y_true))
+        #sigWeight = expectedSignal/K.sum(y_true)
+        #bkgWeight = expectedBkgd/K.sum(1-y_true)
+
+        s = K.sum(y_pred*y_true)
+        b = K.sum(y_pred*(1-y_true))
 
         # Print s and b
         # s = K.print_tensor(s, 's=')
