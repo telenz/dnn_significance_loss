@@ -110,7 +110,46 @@ def make_prediction_higgs(model, X_test, Y_test, features, config):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
+def add_weight_corrected_by_lumi(data, config):
+
+    """Adds a column with a weight that is multiplied with a global lumi event weight
+    Calculated with s_exp+b_exp and the total sum of signal and background weights
+    It assumes the same mixture of bkg and sig events as in the training.csv file
+    Parameters:
+    argument1 (panda dataframe): input dataframe
+    argument2 (config file): global keras config
+    Returns:
+    dataframe including global event weight (global_weight)
+    """
+
+    # Get expected number of signal and background events from config
+    s_exp = float(config.get('PARAMETERS','s_exp'))
+    b_exp = float(config.get('PARAMETERS','b_exp'))
+    s_plus_b_exp = s_exp + b_exp
+
+    # Get sum of event weights for signal and background
+    weight_sum = np.sum(data['Weight'])
+
+    # Calculate global event weight
+    if not 'Weight' in data.columns:
+        data['Weight'] = 1
+
+    data['Weight_corrected_by_lumi'] = data['Weight']*s_plus_b_exp/weight_sum
+
+    return data
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
 def add_train_weights(data):
+
+    """Adds a column with a weight called train_weight to weight both samples equally in the loss
+    Calculated with the total sum of 'Weights' in the sample and the sum of 'Weights' of bkg and signal events
+    Parameters:
+    argument1 (panda dataframe): input dataframe
+    Returns:
+    dataframe including train_weight
+    """
 
     # Get sum of all weights and sum of signal (background) weights
     sum_of_all_weights = data.sum(axis = 0, skipna = True)['Weight']
@@ -119,7 +158,7 @@ def add_train_weights(data):
     sig_class_weight = sum_of_all_weights/sum_of_sig_weights
     bkg_class_weight = sum_of_all_weights/sum_of_bkg_weights
 
-    # Add a column to data with a new variable 'train_weight' that is the original weight multiplied with the class_weight
+    # Calculate train_weight with the sums calculated above
     data['train_weight'] = data['Weight']*(sig_class_weight*data['signal']+bkg_class_weight*(1-data['signal']))
 
     return data
