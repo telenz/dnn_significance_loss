@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import os
 import plotly.graph_objs as go
-import plotly.plotly as py
+import chart_studio.plotly as py
 import significance_estimators as sig
 
 color1  = '#53bab0'
