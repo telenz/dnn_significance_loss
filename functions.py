@@ -219,9 +219,7 @@ def train_model(model, X_train, Y_train, features, cb_list, config, sample_weigh
 # def encode_weights(y_true_as_pd_series, weights_as_pd_series):
 
 #     y_true_as_pd_series = y_true_as_pd_series.replace(0,-1)
-#     #y_true_as_pd_series = y_true_as_pd_series.multiply(weights_as_pd_series)
-#     #y_true_as_pd_series = y_true_as_pd_series.multiply(2)
-#     y_true_as_pd_series = 2*y_true_as_pd_series
+#     y_true_as_pd_series = y_true_as_pd_series*weights_as_pd_series
 
 #     return y_true_as_pd_series.to_frame("signal")
 
@@ -229,8 +227,6 @@ def train_model(model, X_train, Y_train, features, cb_list, config, sample_weigh
 # # ------------------------------------------------------------------------------------------------------------
 
 # def decode_weights(y_true_as_pd_df):
-
-#     print(type(y_true_as_pd_df))
 
 #     weights = abs(y_true_as_pd_df[["signal"]])
 #     y_true_as_pd_df["signal"]=y_true_as_pd_df["signal"].divide(weights["signal"])
