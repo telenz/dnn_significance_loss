@@ -22,6 +22,7 @@ def read_susy_data_from_pkl():
     # Read pickle file and drop columns that are not needed
     data = pandas.read_pickle('/nfs/dust/cms/user/tlenz/13TeV/2018/significance_loss/dfs/combinedleonid.pkl')
     data = data[features+['signal']]
+    data = data.reset_index(drop=True)
 
     return data, features
 
@@ -70,9 +71,7 @@ def prepare_df(data, features):
     return X_train, X_test, Y_train, Y_test
 
 # ------------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------------
-
-def make_prediction(model, X_test, Y_test, config):
+def make_prediction(model, X_test, Y_test, features, config):
 
     s_exp = float(config.get('PARAMETERS','sig_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
     b_exp = float(config.get('PARAMETERS','bkg_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
@@ -80,7 +79,7 @@ def make_prediction(model, X_test, Y_test, config):
     df_test_with_pred = pandas.concat([X_test,Y_test], axis=1)
 
     # Predict the classes for the test data
-    prediction = model.predict(X_test, batch_size=int(config.get('KERAS','batch_size')))[:,1]
+    prediction = model.predict(X_test[features], batch_size=int(config.get('KERAS','batch_size')))[:,1]
     df_test_with_pred['pred_prob'] = prediction
 
     # Calculate weights
@@ -92,7 +91,6 @@ def make_prediction(model, X_test, Y_test, config):
 
     return df_test_with_pred
 
-# ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
 def make_prediction_higgs(model, X_test, Y_test, features, config):
@@ -110,7 +108,7 @@ def make_prediction_higgs(model, X_test, Y_test, features, config):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def add_weight_corrected_by_lumi(data, config):
+def add_weight_corrected_by_lumi(X, Y, config):
 
     """Adds a column with a weight that is multiplied with a global lumi event weight
     Calculated with s_exp+b_exp and the total sum of signal and background weights
@@ -122,21 +120,24 @@ def add_weight_corrected_by_lumi(data, config):
     dataframe including global event weight (global_weight)
     """
 
+    # If Weight column does not yet exist create it
+    if not 'Weight' in X.columns:
+        X['Weight'] = 1
+
     # Get expected number of signal and background events from config
     s_exp = float(config.get('PARAMETERS','s_exp'))
     b_exp = float(config.get('PARAMETERS','b_exp'))
-    s_plus_b_exp = s_exp + b_exp
 
     # Get sum of event weights for signal and background
-    weight_sum = np.sum(data['Weight'])
+    weight_sum_sig = np.sum(X['Weight'][Y['signal']==1])
+    weight_sum_bkg = np.sum(X['Weight'][Y['signal']==0])
 
     # Calculate global event weight
-    if not 'Weight' in data.columns:
-        data['Weight'] = 1
+    X['Weight_corrected_by_lumi'] = 1.
+    X.loc[Y['signal']==1,'Weight_corrected_by_lumi']=X['Weight']*s_exp/weight_sum_sig
+    X.loc[Y['signal']==0,'Weight_corrected_by_lumi']=X['Weight']*b_exp/weight_sum_bkg
 
-    data['Weight_corrected_by_lumi'] = data['Weight']*s_plus_b_exp/weight_sum
-
-    return data
+    return X
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
@@ -150,6 +151,10 @@ def add_train_weights(data):
     Returns:
     dataframe including train_weight
     """
+
+    # If Weight column does not yet exist create it
+    if not 'Weight' in data.columns:
+        data['Weight'] = 1
 
     # Get sum of all weights and sum of signal (background) weights
     sum_of_all_weights = data.sum(axis = 0, skipna = True)['Weight']
