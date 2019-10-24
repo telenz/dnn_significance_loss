@@ -47,8 +47,8 @@ reload(fcn)
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
 input_weights = None
-#model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 2)
-model = arch.susy_2(num_inputs = len(features), num_outputs = 2)
+model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 2)
+#model = arch.susy_2(num_inputs = len(features), num_outputs = 2)
 
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
@@ -61,6 +61,9 @@ keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
 
 #----------------------------------------------------------------------------------------------------
 # Get the right loss function (from the config)
+reload(loss)
+reload(arch)
+reload(fcn)
 s_exp = float(config.get('PARAMETERS','s_exp'))
 b_exp = float(config.get('PARAMETERS','b_exp'))
 
@@ -74,8 +77,15 @@ else:
     
 #----------------------------------------------------------------------------------------------------
 # Compile the model
-loss_=loss_from_config
+if input_weights is not None:
+    loss_=fcn.wrapped_partial(loss_from_config,weights=input_weights)
+else:
+    loss_=loss_from_config
+    print loss_
+#loss_=loss_from_config
 print loss_
+
+#Y_train  = fcn.encode_weights(Y_train['signal'],X_train['Weight_corrected_by_lumi'])
     
 model.compile(loss=loss_,
               optimizer=config.get('KERAS','optimizer'),
@@ -85,11 +95,10 @@ d=model.summary()
 
 #----------------------------------------------------------------------------------------------------
 # Training or Reading model
-#--------------------------
 if config.get('KERAS','train')=="True":
     # Train the network
     history =  fcn.train_model(model, X_train, Y_train, features, 
-                               cb_list, config, sample_weights = 'train_weight')
+                               cb_list, config, sample_weights = '')
 #----------------------------------------------------------------------------------------------------
 
 # Prediction for test data set
