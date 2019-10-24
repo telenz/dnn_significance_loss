@@ -1,113 +1,115 @@
+import sys
+sys.path.append('/home/tlenz/afs/dnn_significance_loss') # needed for execution from laptop
 import numpy as np
-np.random.seed(1235) # for reproducibility
 import os
-import argparse
-import ConfigParser
-import pandas
-import keras
-from keras.models import model_from_json
-from sklearn.metrics import roc_auc_score
-from sklearn.utils import shuffle
 import time
+import ConfigParser
+#import pandas
+import keras
+#import tensorflow as tf
+#from keras import backend as K
+from keras.models import model_from_json
+#from sklearn import preprocessing
+#from sklearn.model_selection import train_test_split
+#from sklearn.metrics import roc_auc_score
+#from sklearn.utils import shuffle
 import visualization as vis
 import significance_estimators as sig
 import functions as fcn
 import losses as loss
+import architectures as arch
+np.random.seed(1234) # for reproducibility
+from tensorflow import set_random_seed
+set_random_seed(3)
 
 #----------------------------------------------------------------------------------------------------
-# Read command line arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('-t', dest='train', help='Train new model' , action='store_true')
-args = parser.parse_args()
-#----------------------------------------------------------------------------------------------------
+##### Higgs data #####
+######################
 # Read config
-#------------
+config_name = "/home/tlenz/afs/dnn_significance_loss/keras_higgs.cfg"
 config = ConfigParser.ConfigParser()
-config.read('keras.cfg')
-
-s_exp = float(config.get('PARAMETERS','sig_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
-b_exp = float(config.get('PARAMETERS','bkg_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
+config.read(config_name)
+# Read and prepare (e.g. scale) input data
+reload(fcn)
+data, features = fcn.read_higgs_data_from_csv("/home/tlenz/afs/dnn_significance_loss/data/higgs-kaggle-challenge/training.csv")
+data = fcn.add_train_weights(data)
+data = fcn.add_weight_corrected_by_lumi(data, data, config)
+X_train, X_test, Y_train, Y_test = fcn.prepare_df(data, features)
+X_train = fcn.add_weight_corrected_by_lumi(X_train, Y_train, config)
+X_test  = fcn.add_weight_corrected_by_lumi(X_test, Y_test, config)
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+# Define the network architecture and relevant settings and train the network
+#----------------------------------------------------------------------------------------------------
+reload(loss)
+reload(arch)
+reload(fcn)
+#----------------------------------------------------------------------------------------------------
+# Define the architecure (!)
+input_weights = None
+#model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 2)
+model = arch.susy_2(num_inputs = len(features), num_outputs = 2)
 
 #----------------------------------------------------------------------------------------------------
-# Make train and test dataframes
-#-------------------------------
-# Split dataset into test and training set
-X_train, X_test, Y_train, Y_test = fcn.prepare_data()
-
-#----------------------------------------------------------------------------------------------------
-# Define the network (!)
-#-----------------------
-model = keras.models.Sequential()
-model.add(keras.layers.Dense(23, input_shape = (X_train.shape[1],), activation='relu'))
-model.add(keras.layers.Dense(2, activation='softmax'))
-
 # Define callbacks
-monitor_variable = 'val_loss'
-if float(config.get('KERAS','validation_split')) == 0.: 
-    monitor_variable = 'loss'
-cb = keras.callbacks.EarlyStopping(monitor=monitor_variable, min_delta=0, patience=int(config.get('KERAS','patience')), verbose=1, mode='auto', baseline=None, restore_best_weights=True)
+cb = fcn.define_callbacks(config)
 cb_list = [cb]
 
+#----------------------------------------------------------------------------------------------------
 # Add optimizer options
-keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')),
-                      #     beta_1=0.9,
-                      #     beta_2=0.999,
-                      #     epsilon=None,
-                      #     decay=0.0,
-                      #     amsgrad=False
-                      )
+keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
+
+#----------------------------------------------------------------------------------------------------
+# Get the right loss function (from the config)
+s_exp = float(config.get('PARAMETERS','s_exp'))
+b_exp = float(config.get('PARAMETERS','b_exp'))
+
+if config.get('KERAS','loss') != 'binary_crossentropy':
+    loss_function = getattr( loss, config.get('KERAS','loss') )
+    #loss_from_config = loss_function(s_exp,b_exp,float(config.get('KERAS','systematic')))
+    loss_from_config = loss_function(s_exp, b_exp, float(config.get('KERAS','systematic')))
+    print loss_from_config
+else:
+    loss_from_config = 'binary_crossentropy'
+    
+#----------------------------------------------------------------------------------------------------
+# Compile the model
+loss_=loss_from_config
+print loss_
+    
+model.compile(loss=loss_,
+              optimizer=config.get('KERAS','optimizer'),
+              metrics=[config.get('KERAS','metrics')])
+
+d=model.summary()
+
 #----------------------------------------------------------------------------------------------------
 # Training or Reading model
 #--------------------------
-# Define the loss function
-if config.get('KERAS','loss') != 'binary_crossentropy':
-    loss_function = getattr( loss, config.get('KERAS','loss') )
-    loss_from_config = loss_function(s_exp,b_exp)
-else:
-    loss_from_config = 'binary_crossentropy'
-
-if args.train:
-
+if config.get('KERAS','train')=="True":
     # Train the network
-    model.compile(loss=loss_from_config, optimizer=config.get('KERAS','optimizer'), metrics=[config.get('KERAS','metrics')])
-
-    history =  model.fit(X_train.values,
-                         keras.utils.to_categorical(Y_train),
-                         epochs           = int(config.get('KERAS','epochs')),
-                         batch_size       = int(config.get('KERAS','batch_size')),
-                         validation_split = float(config.get('KERAS','validation_split')),
-                         callbacks        = cb_list)
-
-    # Save the model
-    model_json = model.to_json()
-    if not os.path.exists('models'):
-        os.makedirs('models')
-    with open("models/model.json", "w") as json_file:
-        json_file.write(model_json)
-        model.save_weights("models/model.h5")
-        print("\n-- Saved model to disk. --\n")
-else:
-    # Load the model
-    json_file = open('models/model.json', 'r')
-    model     = model_from_json( json_file.read() )
-    json_file.close()
-    # Load weights into new model
-    model.load_weights("models/model.h5")
-    model.compile(loss=loss_from_config, optimizer=config.get('KERAS','optimizer'), metrics=[config.get('KERAS','metrics')])
-    print("\n-- Loaded model from disk. -- \n")
-
+    history =  fcn.train_model(model, X_train, Y_train, features, 
+                               cb_list, config, sample_weights = 'train_weight')
 #----------------------------------------------------------------------------------------------------
+
 # Prediction for test data set
 #-----------------------------
-df_pred = fcn.make_prediction(model, X_test, Y_test)
+reload(fcn)
+df_pred = fcn.make_prediction(model, X_test, Y_test, features, config)
 
 #----------------------------------------------------------------------------------------------------
 # Visualization
 #--------------
+reload(sig)
+reload(vis)
+reload(sig)
+# Make loss vs epochs plot
+vis.plot_val_train_loss(history, plot_log = False)
+# Make classification plot
 vis.plot_prediction(df_pred)
-if args.train: 
-    vis.plot_val_train_loss(history)
-vis.plot_significances(df_pred)
+# Get significance estimates
+vis.plot_significances(df_pred, "Weight_corrected_by_lumi")
+
 
 #----------------------------------------------------------------------------------------------------
 # Save the output of this test in a folder
@@ -118,20 +120,10 @@ if not os.path.exists(folder_name):
 os.system('cp keras.cfg ' + folder_name +'/keras.cfg')
 os.system('cp plots/classification.png ' + folder_name +'/.')
 os.system('cp plots/significance_estimates.png ' + folder_name +'/.')
-if args.train:
+if config.get('KERAS','train')=="True":
     os.system('cp plots/loss.png ' + folder_name +'/.')    
 else:
     os.system('cp -r models/ ' + folder_name +'/.')    
 
 
 #----------------------------------------------------------------------------------------------------
-# Other stuff
-# evaluate loaded model on test data
-#score = model.evaluate(X_test[features], Y_test, verbose=0)
-#print("%s: %.2f%%" % (model.metrics_names[1], score[1]*100))
-
-# Predict on test data
-#ret = model.predict(X_test.values)
-#AUC = roc_auc_score(Y_test, ret[:,1])
-#print("Test Area under Cruve = {0}".format(AUC))
-
