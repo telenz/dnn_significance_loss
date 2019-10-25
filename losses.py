@@ -26,21 +26,23 @@ def significanceLoss( expectedSignal=1 , expectedBkgd=1 , systematics_not_used=0
 
 def paperLoss(s_exp, b_exp, systematic):
 
-    def paperLoss_(y_true, y_pred, weights):
+    def paperLoss_(y_true_with_weights, y_pred):
+
+        # Split y_true_with_weights to y_true and weights
+        y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
+
+        # # Printing
+        # y_pred  = tf.Print(y_pred,[y_pred],"y_pred = ",summarize=10)
+        # weights = tf.Print(weights,[weights],"weights = ",summarize=10)
+        # y_true  = tf.Print(y_true,[y_true],"y_true = ",summarize=10)
 
         # To normalize each batch to s_exp and b_exp calculate sum of weights for signal and bkg
         sig_weight = s_exp/K.sum( weights * y_true     )
         bkg_weight = b_exp/K.sum( weights * (1-y_true) )
 
-        # weights = K.print_tensor(weights, 'weights=')
-
         # Calculate s and b
         s = K.sum( y_pred * y_true     * weights * sig_weight )
         b = K.sum( y_pred * (1-y_true) * weights * bkg_weight )
-
-        # Print s and b
-        # s = K.print_tensor(s, 's=')
-        # b = K.print_tensor(b, 'b=')
 
         return (s+b)/(s*s)
 

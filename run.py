@@ -5,6 +5,7 @@ import os
 import time
 import ConfigParser
 import keras
+import pandas
 import visualization as vis
 import significance_estimators as sig
 import functions as fcn
@@ -14,8 +15,8 @@ np.random.seed(1234) # for reproducibility
 from tensorflow import set_random_seed
 set_random_seed(3)
 #----------------------------------------------------------------------------------------------------
-source_data  = 'higgs' # 'susy'
 #----------------------------------------------------------------------------------------------------
+source_data  = 'higgs' # 'susy'
 #----------------------------------------------------------------------------------------------------
 ##### Read and prepare data #####
 #################################
@@ -46,8 +47,8 @@ config.read(config_name)
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
 input_weights = None
-model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
-#model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
+#model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
+model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
@@ -59,8 +60,10 @@ keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
 # Get the right loss function (from the config)
 if config.get('KERAS','loss') != 'binary_crossentropy':
     loss_function = getattr( loss, config.get('KERAS','loss') )
-    #loss_from_config = loss_function(s_exp,b_exp,float(config.get('KERAS','systematic')))
     loss_from_config = loss_function(float(config.get('PARAMETERS','s_exp')), float(config.get('PARAMETERS','b_exp')), float(config.get('KERAS','systematic')))
+    # Set also Y to two dimensions
+    Y_train = pandas.concat([Y_train['signal'],X_train["Weight_corrected_by_lumi"]], axis=1)
+    Y_test  = pandas.concat([Y_test['signal'],X_test["Weight_corrected_by_lumi"]], axis=1)
     print loss_from_config
 else:
     loss_from_config = 'binary_crossentropy'
