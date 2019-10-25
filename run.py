@@ -4,15 +4,7 @@ import numpy as np
 import os
 import time
 import ConfigParser
-#import pandas
 import keras
-#import tensorflow as tf
-#from keras import backend as K
-#from keras.models import model_from_json
-#from sklearn import preprocessing
-#from sklearn.model_selection import train_test_split
-#from sklearn.metrics import roc_auc_score
-#from sklearn.utils import shuffle
 import visualization as vis
 import significance_estimators as sig
 import functions as fcn
@@ -21,19 +13,27 @@ import architectures as arch
 np.random.seed(1234) # for reproducibility
 from tensorflow import set_random_seed
 set_random_seed(3)
-
-
+#----------------------------------------------------------------------------------------------------
+source_data  = 'higgs' # 'susy'
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
-##### Higgs data #####
-######################
-# Read config
-config_name = "/home/tlenz/afs/dnn_significance_loss/keras_higgs.cfg"
-config = ConfigParser.ConfigParser()
-config.read(config_name)
-# Read and prepare (e.g. scale) input data
-reload(fcn)
-data, features = fcn.read_higgs_data_from_csv("/home/tlenz/afs/dnn_significance_loss/data/higgs-kaggle-challenge/training.csv")
+##### Read and prepare data #####
+#################################
+if source_data == 'higgs':
+    # Read config
+    config_name = "keras_higgs.cfg"
+    config = ConfigParser.ConfigParser()
+    config.read(config_name)
+    # Read and prepare (e.g. scale) input data
+    reload(fcn)
+    data, features = fcn.read_higgs_data_from_csv("data/higgs-kaggle-challenge/training.csv")
+elif source_data == 'susy':
+    config_name = "keras_susy.cfg"
+    config = ConfigParser.ConfigParser()
+    config.read(config_name)
+    reload(fcn)
+    data, features = fcn.read_susy_data_from_pkl("data/susy/combinedleonid.pkl")
+
 data = fcn.add_train_weights(data)
 data = fcn.add_weight_corrected_by_lumi(data, data, config)
 X_train, X_test, Y_train, Y_test = fcn.prepare_df(data, features)
@@ -98,7 +98,7 @@ if config.get('KERAS','train')=="True":
 # Prediction
 #-----------
 reload(fcn)
-df_pred = fcn.make_prediction(model, X_test, Y_test, features, config)
+df_pred = fcn.make_prediction_higgs(model, X_test, Y_test, features, config)
 #----------------------------------------------------------------------------------------------------
 # Visualization
 #--------------
