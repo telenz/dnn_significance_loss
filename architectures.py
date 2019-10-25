@@ -10,7 +10,7 @@ def susy_2(num_inputs, num_outputs):
     input_  = keras.layers.Input( (num_inputs,) )
     output_ = keras.layers.Dense(units=23,activation='relu')(input_)
     output_ = keras.layers.Dense(units=23,activation='relu')(output_)
-    output_ = keras.layers.Dense(units=2,activation='sigmoid')(output_)
+    output_ = keras.layers.Dense(units=num_outputs,activation='sigmoid')(output_)
     model = keras.models.Model( inputs=input_, outputs=output_)
     return model
 
@@ -28,6 +28,6 @@ def model_for_weights(num_inputs, num_outputs):
     input_weights = keras.layers.Input( (1,) )
     output_ = keras.layers.Dense(units=23,activation='relu')(input_)
     output_ = keras.layers.Dense(units=23,activation='relu')(output_)
-    output_ = keras.layers.Dense(units=2,activation='sigmoid')(output_)
+    output_ = keras.layers.Dense(units=num_outputs,activation='sigmoid')(output_)
     model = keras.models.Model( inputs=[input_,input_weights],outputs=output_)
     return model, input_weights

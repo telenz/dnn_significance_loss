@@ -204,7 +204,7 @@ def train_model(model, X_train, Y_train, features, cb_list, config, sample_weigh
         weights_ = None
 
     history =  model.fit(x,
-                         keras.utils.np_utils.to_categorical(Y_train.values),
+                         Y_train.values,
                          epochs           = int(config.get('KERAS','epochs')),
                          batch_size       = int(config.get('KERAS','batch_size')),
                          validation_split = float(config.get('KERAS','validation_split')),
