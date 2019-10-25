@@ -50,8 +50,8 @@ reload(fcn)
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
 input_weights = None
-model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 2)
-#model = arch.susy_2(num_inputs = len(features), num_outputs = 2)
+model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
+#model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)

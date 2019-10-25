@@ -75,10 +75,6 @@ def asimovLossInvertWithReg(expectedSignal, expectedBkgd, systematic):
         # Contrain y_pred from below and above by epsilon
         y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
 
-        # Take only second column of y_pred and y_true -> study this further which column to take
-        y_pred = y_pred[:,1]
-        y_true = y_true[:,1]
-
 
         ############################   Printing #####################################
         #print(K.int_shape(y_true))
@@ -121,10 +117,6 @@ def asimovLossInvertWithRegWeighted(expectedSignal=1, expectedBkgd=1, systematic
 
         # with additional argument : https://stackoverflow.com/questions/48082655/custom-weighted-loss-function-in-keras-for-weighing-each-element
         # without additional argument : https://datascience.stackexchange.com/questions/25029/custom-loss-function-with-additional-parameter-in-keras
-
-        # Take only signal column from y_pred and y_true
-        y_pred = y_pred[:,1]
-        y_true = y_true[:,1]
 
         # Calculate s and b where s = sum_signal_events(y_pred) and b = sum_bkg_events(y_pred)
         #s = K.sum(y_pred * y_true * weights     )
