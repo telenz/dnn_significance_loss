@@ -95,7 +95,7 @@ def make_prediction(model, X_test, Y_test, features, config):
 
 def make_prediction_higgs(model, X_test, Y_test, features, config):
 
-    df_test_with_pred = pandas.concat([X_test,Y_test], axis=1)
+    df_test_with_pred = pandas.concat([X_test,Y_test['signal']], axis=1)
     # Predict the classes for the test data
     if isinstance(model.input, list):
         prediction = model.predict([X_test[features].values , X_test["Weight"].values], batch_size=int(config.get('KERAS','batch_size')))[:,0]
