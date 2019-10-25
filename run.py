@@ -109,7 +109,7 @@ vis.plot_val_train_loss(history, plot_log = False)
 # Make classification plot
 vis.plot_prediction(df_pred)
 # Get significance estimates
-vis.plot_significances(df_pred, "Weight_corrected_by_lumi")
+vis.plot_significances(df_pred, "Weight_corrected_by_lumi", history)
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 # =============================================================================

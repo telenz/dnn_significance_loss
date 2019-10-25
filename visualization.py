@@ -23,7 +23,7 @@ color15 = "#CCFFCC";
 
 plt.rcParams.update({'font.size': 20})
 
-def plot_significances(df_test_with_pred, weight_name):
+def plot_significances(df_test_with_pred, weight_name, history):
    
    df_sig = df_test_with_pred.loc[df_test_with_pred['signal']==1]
    df_bkg = df_test_with_pred.loc[df_test_with_pred['signal']==0]
@@ -65,7 +65,7 @@ def plot_significances(df_test_with_pred, weight_name):
    plt.plot(bin_centers, asimov_sys_0p1_with_reg(s,b),       color=color13, linewidth=2.0, label='Z_asimov_with_reg (sys=0.10) : ' + str(round(max(asimov_sys_0p1_with_reg(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p3_with_reg(s,b),       color=color14, linewidth=2.0, label='Z_asimov_with_reg (sys=0.30) : ' + str(round(max(asimov_sys_0p3_with_reg(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p5_with_reg(s,b),       color=color15, linewidth=2.0, label='Z_asimov_with_reg (sys=0.50) : ' + str(round(max(asimov_sys_0p5_with_reg(s,b)),1)) )
-   plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)) )
+   plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)) + "  ;  val_acc : " + str(round(max(history.history['val_acc']),2)) )
    plt.xlabel('NN probablity')
    plt.ylabel('Significance estimate')
    plt.legend(loc=2)
