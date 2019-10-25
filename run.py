@@ -19,21 +19,16 @@ source_data  = 'higgs' # 'susy'
 #----------------------------------------------------------------------------------------------------
 ##### Read and prepare data #####
 #################################
+reload(fcn)
 if source_data == 'higgs':
-    # Read config
     config_name = "keras_higgs.cfg"
-    config = ConfigParser.ConfigParser()
-    config.read(config_name)
-    # Read and prepare (e.g. scale) input data
-    reload(fcn)
     data, features = fcn.read_higgs_data_from_csv("data/higgs-kaggle-challenge/training.csv")
 elif source_data == 'susy':
     config_name = "keras_susy.cfg"
-    config = ConfigParser.ConfigParser()
-    config.read(config_name)
-    reload(fcn)
     data, features = fcn.read_susy_data_from_pkl("data/susy/combinedleonid.pkl")
 
+config = ConfigParser.ConfigParser()
+config.read(config_name)
 data = fcn.add_train_weights(data)
 data = fcn.add_weight_corrected_by_lumi(data, data, config)
 X_train, X_test, Y_train, Y_test = fcn.prepare_df(data, features)
@@ -47,6 +42,7 @@ X_test  = fcn.add_weight_corrected_by_lumi(X_test, Y_test, config)
 reload(loss)
 reload(arch)
 reload(fcn)
+config.read(config_name)
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
 input_weights = None
