@@ -9,7 +9,7 @@ import keras
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def read_susy_data_from_pkl():
+def read_susy_data_from_pkl(filename):
 
     features = [
         'HT','MET','MT','MT2W','n_jet',
@@ -20,7 +20,7 @@ def read_susy_data_from_pkl():
         ]
 
     # Read pickle file and drop columns that are not needed
-    data = pandas.read_pickle('/nfs/dust/cms/user/tlenz/13TeV/2018/significance_loss/dfs/combinedleonid.pkl')
+    data = pandas.read_pickle(filename)
     data = data[features+['signal']]
     data = data.reset_index(drop=True)
 
