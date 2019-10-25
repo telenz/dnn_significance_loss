@@ -65,7 +65,8 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.plot(bin_centers, asimov_sys_0p1_with_reg(s,b),       color=color13, linewidth=2.0, label='Z_asimov_with_reg (sys=0.10) : ' + str(round(max(asimov_sys_0p1_with_reg(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p3_with_reg(s,b),       color=color14, linewidth=2.0, label='Z_asimov_with_reg (sys=0.30) : ' + str(round(max(asimov_sys_0p3_with_reg(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p5_with_reg(s,b),       color=color15, linewidth=2.0, label='Z_asimov_with_reg (sys=0.50) : ' + str(round(max(asimov_sys_0p5_with_reg(s,b)),1)) )
-   plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)) + "  ;  val_acc : " + str(round(max(history.history['val_acc']),2)) )
+   plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)))
+   plt.plot([], [], ' ', label="val_acc : " + str(round(max(history.history['val_acc']),2)) + "  ;  val_loss : " + str(round(min(history.history['val_loss']),5)))
    plt.xlabel('NN probablity')
    plt.ylabel('Significance estimate')
    plt.legend(loc=2)
@@ -118,8 +119,8 @@ def plot_val_train_loss(history, plot_log = True):
     # Visualize loss history
     plt.plot(epoch_range, training_loss,   color1,  linewidth=4.0)
     plt.plot(epoch_range, validation_loss, color2,   linewidth=4.0)
-    plt.legend(['Training Loss    : ' + str(round( min(history.history["loss"]) ,4)), 
-                'Validation Loss : ' + str(round( min(history.history["val_loss"]) ,4)) ])
+    plt.legend(['Training Loss    : ' + str(round( min(history.history["loss"]) ,6)),
+                'Validation Loss : ' + str(round( min(history.history["val_loss"]) ,6)) ])
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     if plot_log: plt.yscale('log')
