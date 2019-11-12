@@ -13,10 +13,10 @@ import losses as loss
 import architectures as arch
 np.random.seed(1234) # for reproducibility
 from tensorflow import set_random_seed
-set_random_seed(3)
+set_random_seed(1)
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
-source_data  = 'higgs' # 'susy'
+source_data  = 'susy' # 'higgs'
 #----------------------------------------------------------------------------------------------------
 ##### Read and prepare data #####
 #################################
@@ -44,11 +44,16 @@ reload(loss)
 reload(arch)
 reload(fcn)
 config.read(config_name)
+
+print ''
+print 'batch_size = ' + str(config.get('KERAS','batch_size'))
+print 'patience = ' + str(config.get('KERAS','patience'))
+print ''
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
 input_weights = None
 #model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
-model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
+model = arch.susy(num_inputs = len(features), num_outputs = 1)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
