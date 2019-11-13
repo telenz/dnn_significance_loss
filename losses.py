@@ -123,32 +123,3 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
-
-def asimovLossInvertWithRegWeighted(s_exp, b_exp, systematic=0.0):
-
-    def asimovLossInvertWithRegWeighted_(y_true_with_weights, y_pred):
-
-        # with additional argument : https://stackoverflow.com/questions/48082655/custom-weighted-loss-function-in-keras-for-weighing-each-element
-        # without additional argument : https://datascience.stackexchange.com/questions/25029/custom-loss-function-with-additional-parameter-in-keras
-
-        # Split y_true_with_weights to y_true and weights
-        y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
-
-        # To normalize each batch to s_exp and b_exp calculate sum of weights for signal and bkg
-        sig_weight = s_exp/K.sum( weights * y_true     )
-        bkg_weight = b_exp/K.sum( weights * (1-y_true) )
-
-        # Calculate s and b
-        s = K.sum( y_pred * y_true     * weights * sig_weight )
-        b = K.sum( y_pred * (1-y_true) * weights * bkg_weight )
-
-        sigma_b   = systematic*b
-        sigma_reg = 1.8410548  # this is  68% CL from the Neyman construction for N=0 -> thus the lowest statistical uncertainty that can be achieved (see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars)
-        sigma_b   = K.sqrt( sigma_b*sigma_b + sigma_reg*sigma_reg )
-
-        return 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
-
-    return asimovLossInvertWithRegWeighted_
-
-# ------------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------------
