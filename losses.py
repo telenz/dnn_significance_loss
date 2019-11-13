@@ -71,7 +71,12 @@ def asimovLossInvert(s_exp, b_exp, systematic):
         b = K.sum( y_pred * (1-y_true) * weights * bkg_weight )
         sigma_b = systematic * b
 
-        return 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
+        if systematic == 0:
+            loss_ =  1./(2*((s+b)*K.log(1+s/b)-s))
+        else:
+            loss_ = 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
+
+        return loss_
 
     return asimovLossInvert_
 
