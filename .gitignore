@@ -5,3 +5,4 @@
 models/*
 plots/*
 data/*
+*.png
