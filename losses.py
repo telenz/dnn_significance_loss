@@ -57,7 +57,7 @@ def paperLoss(s_exp, b_exp, systematic):
 
 def asimovLossInvert(s_exp, b_exp, systematic):
 
-    def asimovLossInvert_(y_true,y_pred):
+    def asimovLossInvert_(y_true_with_weights,y_pred):
 
         # Split y_true_with_weights to y_true and weights
         y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
@@ -82,7 +82,7 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 
     # systematic = K.print_tensor(systematic, 'systematic=')
 
-    def asimovLossInvertWithReg_(y_true,y_pred):
+    def asimovLossInvertWithReg_(y_true_with_weights,y_pred):
 
         # Split y_true_with_weights to y_true and weights
         y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
@@ -126,7 +126,7 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 
 def asimovLossInvertWithRegWeighted(s_exp, b_exp, systematic=0.0):
 
-    def asimovLossInvertWithRegWeighted_(y_true, y_pred):
+    def asimovLossInvertWithRegWeighted_(y_true_with_weights, y_pred):
 
         # with additional argument : https://stackoverflow.com/questions/48082655/custom-weighted-loss-function-in-keras-for-weighing-each-element
         # without additional argument : https://datascience.stackexchange.com/questions/25029/custom-loss-function-with-additional-parameter-in-keras
