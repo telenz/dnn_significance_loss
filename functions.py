@@ -71,6 +71,8 @@ def prepare_df(data, features):
     return X_train, X_test, Y_train, Y_test
 
 # ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
 def make_prediction(model, X_test, Y_test, features, config):
 
     s_exp = float(config.get('PARAMETERS','sig_xsec_times_eff')) * float(config.get('PARAMETERS','lumi'))
@@ -79,7 +81,7 @@ def make_prediction(model, X_test, Y_test, features, config):
     df_test_with_pred = pandas.concat([X_test,Y_test], axis=1)
 
     # Predict the classes for the test data
-    prediction = model.predict(X_test[features], batch_size=int(config.get('KERAS','batch_size')))[:,0]
+    prediction = model.predict(X_test[features], batch_size=int(config.get('KERAS','batch_size')))
     df_test_with_pred['pred_prob'] = prediction
 
     # Calculate weights
@@ -92,15 +94,14 @@ def make_prediction(model, X_test, Y_test, features, config):
     return df_test_with_pred
 
 # ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
 
 def make_prediction_higgs(model, X_test, Y_test, features, config):
 
+    # Add the true label (not used in the prediction though)
     df_test_with_pred = pandas.concat([X_test,Y_test['signal']], axis=1)
     # Predict the classes for the test data
-    if isinstance(model.input, list):
-        prediction = model.predict([X_test[features].values , X_test["Weight"].values], batch_size=int(config.get('KERAS','batch_size')))[:,0]
-    else:
-        prediction = model.predict(X_test[features].values, batch_size=int(config.get('KERAS','batch_size')))[:,0]
+    prediction = model.predict(X_test[features].values, batch_size=int(config.get('KERAS','batch_size')))
     df_test_with_pred['pred_prob'] = prediction
 
     return df_test_with_pred
@@ -193,17 +194,12 @@ def define_callbacks(config):
 
 def train_model(model, X_train, Y_train, features, cb_list, config, sample_weights = ''):
 
-    if isinstance(model.input, list):
-        x = [X_train[features].values , X_train["Weight"].values]
-    else:
-        x = X_train[features].values
-
     if sample_weights is not '':
         weights_ =  X_train[sample_weights].values
     else:
         weights_ = None
 
-    history =  model.fit(x,
+    history =  model.fit(X_train[features].values,
                          Y_train.values,
                          epochs           = int(config.get('KERAS','epochs')),
                          batch_size       = int(config.get('KERAS','batch_size')),
