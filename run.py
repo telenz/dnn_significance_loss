@@ -47,7 +47,8 @@ config.read(config_name)
 
 print ''
 print 'batch_size = ' + str(config.get('KERAS','batch_size'))
-print 'patience = ' + str(config.get('KERAS','patience'))
+print 'epochs     = ' + str(config.get('KERAS','epochs'))
+print 'patience   = ' + str(config.get('KERAS','patience'))
 print ''
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
