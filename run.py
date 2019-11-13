@@ -16,7 +16,7 @@ from tensorflow import set_random_seed
 set_random_seed(1)
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
-source_data  = 'susy' # 'higgs'
+source_data  = 'higgs' # 'susy'
 #----------------------------------------------------------------------------------------------------
 ##### Read and prepare data #####
 #################################
@@ -70,9 +70,12 @@ if config.get('KERAS','loss') != 'binary_crossentropy':
     # Set also Y to two dimensions
     Y_train = pandas.concat([Y_train['signal'],X_train["Weight_corrected_by_lumi"]], axis=1)
     Y_test  = pandas.concat([Y_test['signal'],X_test["Weight_corrected_by_lumi"]], axis=1)
+    # Set sample weights correctly
+    sample_weights_ = ''
     print loss_from_config
 else:
     loss_from_config = 'binary_crossentropy'
+    sample_weights_ = 'train_weight'
     
 #----------------------------------------------------------------------------------------------------
 # Compile the model
@@ -95,7 +98,7 @@ d=model.summary()
 if config.get('KERAS','train')=="True":
     # Train the network
     history =  fcn.train_model(model, X_train, Y_train, features, 
-                               cb_list, config, sample_weights = '')
+                               cb_list, config, sample_weights = sample_weights_)
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 #### Predict and visualize results ####
@@ -112,6 +115,7 @@ reload(vis)
 reload(sig)
 # Make loss vs epochs plot
 vis.plot_val_train_loss(history, plot_log = False)
+vis.plot_val_train_loss(history, plot_log = True)
 # Make classification plot
 vis.plot_prediction(df_pred)
 # Get significance estimates
