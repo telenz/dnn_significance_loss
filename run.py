@@ -113,6 +113,8 @@ df_pred = fcn.make_prediction_higgs(model, X_test, Y_test, features, config)
 reload(sig)
 reload(vis)
 reload(sig)
+# Remove old plots from plots folder
+os.system('rm plots/*')
 # Make loss vs epochs plot
 vis.plot_val_train_loss(history, plot_log = False)
 vis.plot_val_train_loss(history, plot_log = True)
