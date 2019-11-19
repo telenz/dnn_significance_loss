@@ -88,6 +88,9 @@ def asimovLossInvert(s_exp, b_exp, systematic):
                         lambda: 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
                         )
 
+        # # Asimov in an equivalent form
+        # loss_ = 1./(2*((s+b)*K.log(1+s/b) - (s+b+b*b/(sigma_b*sigma_b))*K.log(1+sigma_b*sigma_b*s/(b*b + b*sigma_b*sigma_b))))
+
         # Special case for systematic = 0
         if systematic == 0:
             loss_ = 1./(2*((s+b)*K.log(1+s/b)-s))
