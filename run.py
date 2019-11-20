@@ -2,6 +2,7 @@ import sys
 sys.path.append('/home/tlenz/afs/dnn_significance_loss') # needed for execution from laptop
 import numpy as np
 import os
+os.environ['PYTHONHASHSEED'] = '0'
 import time
 import ConfigParser
 import keras
@@ -11,6 +12,8 @@ import significance_estimators as sig
 import functions as fcn
 import losses as loss
 import architectures as arch
+import random as rn
+rn.seed(12345)
 np.random.seed(1234) # for reproducibility
 from tensorflow import set_random_seed
 set_random_seed(1)
@@ -121,7 +124,17 @@ vis.plot_val_train_loss(history, plot_log = True)
 # Make classification plot
 vis.plot_prediction(df_pred)
 # Get significance estimates
-vis.plot_significances(df_pred, "Weight_corrected_by_lumi", history)
+optimal_cut_value = vis.plot_significances(df_pred, "Weight_corrected_by_lumi", history)
+#----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+#### Make prediction on test.csv for higgs kaggle challenge ####
+################################################################
+reload(fcn)
+if source_data == 'higgs':
+    data_test, features = fcn.read_higgs_data_from_csv("data/higgs-kaggle-challenge/test.csv")
+    data_scaled         = fcn.prepare_features(data_test, features)
+    df_pred_test        = fcn.make_prediction_higgs(model, data_scaled, None, features, config)
+    df_csv              = fcn.make_kaggle_csv_file(df_pred_test,cut_value=optimal_cut_value)
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 # =============================================================================

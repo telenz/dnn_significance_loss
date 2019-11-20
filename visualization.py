@@ -4,6 +4,7 @@ import os
 import plotly.graph_objs as go
 import chart_studio.plotly as py
 import significance_estimators as sig
+import numpy as np
 
 color1  = '#53bab0'
 color2  = '#fbc96d'
@@ -74,7 +75,11 @@ def plot_significances(df_test_with_pred, weight_name, history):
 
    plt.savefig("plots/significance_estimates.png")
 
-   
+   # Get optimal cut value for AMS
+   idx_max = np.argmax(sig.AMS(s,b))
+   optimal_cut_value = bin_centers[idx_max]
+
+   return optimal_cut_value
 
 
 def plot_prediction(df_test_with_pred):

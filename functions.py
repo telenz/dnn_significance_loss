@@ -34,39 +34,48 @@ def read_higgs_data_from_csv(filename):
     data = pandas.read_csv( filename )
 
     features = list(data.columns)
-    features.remove("Label")
-    features.remove("Weight")
-    features.remove("EventId")
+    if 'Label' in features : features.remove("Label")
+    if 'Weight' in features : features.remove("Weight")
+    if 'EventId' in features : features.remove("EventId")
 
     data.rename(columns={'Label':'signal'},inplace=True)
     data.replace("s",1,inplace=True)
     data.replace("b",0,inplace=True)
 
     return data, features
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def prepare_features(data, features):
+
+    # Pre-process your data: scale mean to 0 and variance to 1 for all input variables (scale only features!)
+    ss = StandardScaler()
+    data_scaled = pandas.DataFrame(ss.fit_transform(data[features]),columns = data[features].columns, index = data.index) # add index =... is very important since wo the new df would have new indices which makes a concat later impossible
+
+    # Add non-feature elements again
+    data_list=list(data.columns)
+    data_scaled_list=list(data_scaled.columns)
+    non_feature_elements = list(set(data_list).difference(data_scaled_list))
+    print "list of non-feature elements = " + str(non_feature_elements)
+    if len(non_feature_elements) != 0 :
+        data_scaled = data_scaled.join( data[non_feature_elements], how='inner')
+
+    return data_scaled
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
 def prepare_df(data, features):
 
+    # Scale data to mean=0 and stdv=1
+    data_scaled = prepare_features(data, features)
+
     # Split dataframe to dfs that either contain all variables except 'signal' or containing only 'signal'
-    X = data.drop(["signal"], axis=1, inplace=False)
-    Y = data[["signal"]]
-
-    # Pre-process your data: scale mean to 0 and variance to 1 for all input variables (scale only features!)
-    ss = StandardScaler()
-    X_scaled = pandas.DataFrame(ss.fit_transform(X[features]),columns = X[features].columns, index = X.index) # add index =... is very important since wo the new df would have new indices which makes a concat later impossible
-
-    # Add non-feature elements again
-    X_list=list(X.columns)
-    X_scaled_list=list(X_scaled.columns)
-    non_feature_elements = list(set(X_list).difference(X_scaled_list))
-    print "list of non-feature elements = " + str(non_feature_elements)
-    if len(non_feature_elements) != 0 :
-        X_scaled = X_scaled.join( X[non_feature_elements], how='inner')
+    X = data_scaled.drop(["signal"], axis=1, inplace=False)
+    Y = data_scaled[["signal"]]
 
     # Split dataset into test and training set -> use 30% for final testing
-    X_train, X_test, Y_train, Y_test = train_test_split(X_scaled, Y, test_size=0.30, random_state=1143)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.30, random_state=1143)
 
     return X_train, X_test, Y_train, Y_test
 
@@ -99,12 +108,35 @@ def make_prediction(model, X_test, Y_test, features, config):
 def make_prediction_higgs(model, X_test, Y_test, features, config):
 
     # Add the true label (not used in the prediction though)
-    df_test_with_pred = pandas.concat([X_test,Y_test['signal']], axis=1)
+    if Y_test is not None :
+        df_test_with_pred = pandas.concat([X_test,Y_test['signal']], axis=1)
+    else :
+        df_test_with_pred = X_test
     # Predict the classes for the test data
     prediction = model.predict(X_test[features].values, batch_size=int(config.get('KERAS','batch_size')))
     df_test_with_pred['pred_prob'] = prediction
 
     return df_test_with_pred
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def make_kaggle_csv_file(df, cut_value = 0.5):
+
+    # Write a csv file with the following entries:
+    # EventId, Class (which is s or b), RankOrder (1= most bkg-like, 550000=most signal-like)
+    df = df[['EventId','pred_prob']]
+    df = df.sort_values(by=['pred_prob'])
+    df = df.reset_index(drop=True)
+    df.index = df.index+1
+    df.index.name = 'RankOrder'
+    df.loc[df['pred_prob']<0.5,'Class'] = 'b'
+    df.loc[df['pred_prob']>=0.5,'Class'] = 's'
+    df = df.drop('pred_prob',axis=1)
+    df = df.sort_values(by=['EventId'])
+    df.to_csv('submission_tlenz.csv')
+
+    return df
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
