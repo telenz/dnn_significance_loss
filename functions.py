@@ -130,8 +130,8 @@ def make_kaggle_csv_file(df, cut_value = 0.5):
     df = df.reset_index(drop=True)
     df.index = df.index+1
     df.index.name = 'RankOrder'
-    df.loc[df['pred_prob']<0.5,'Class'] = 'b'
-    df.loc[df['pred_prob']>=0.5,'Class'] = 's'
+    df.loc[df['pred_prob']<cut_value ,'Class'] = 'b'
+    df.loc[df['pred_prob']>=cut_value,'Class'] = 's'
     df = df.drop('pred_prob',axis=1)
     df = df.sort_values(by=['EventId'])
     df.to_csv('submission_tlenz.csv')
