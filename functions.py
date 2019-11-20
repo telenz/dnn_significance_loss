@@ -48,6 +48,9 @@ def read_higgs_data_from_csv(filename):
 
 def prepare_features(data, features):
 
+    # Replace all -999 values with -10 to make it closer to other values
+    data.replace(-999.0,-10.0,inplace=True)
+
     # Pre-process your data: scale mean to 0 and variance to 1 for all input variables (scale only features!)
     ss = StandardScaler()
     data_scaled = pandas.DataFrame(ss.fit_transform(data[features]),columns = data[features].columns, index = data.index) # add index =... is very important since wo the new df would have new indices which makes a concat later impossible
