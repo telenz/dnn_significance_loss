@@ -6,3 +6,4 @@ models/*
 plots/*
 data/*
 *.png
+*.csv
