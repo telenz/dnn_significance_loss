@@ -68,7 +68,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.plot(bin_centers, asimov_sys_0p5_with_reg(s,b),       color=color15, linewidth=2.0, label='Z_asimov_with_reg (sys=0.50) : ' + str(round(max(asimov_sys_0p5_with_reg(s,b)),1)) )
    plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)))
    plt.plot([], [], ' ', label="val_acc : " + str(round(max(history.history['val_acc']),2)) + "  ;  val_loss : " + str(round(min(history.history['val_loss']),5)))
-   plt.xlabel('NN probablity')
+   plt.xlabel('NN probablity cut value')
    plt.ylabel('Significance estimate')
    plt.legend(loc=0, prop={'size': 15})
    plt.grid()
