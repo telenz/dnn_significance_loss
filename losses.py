@@ -147,3 +147,46 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
+
+def sigmoid_significance(s_exp, b_exp, systematic):
+
+    def sigmoid_significance_(y_true_with_weights,y_pred):
+
+        # Split y_true_with_weights to y_true and weights
+        y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
+
+        # Contrain y_pred from below and above by epsilon
+        y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
+
+        # To normalize each batch to s_exp and b_exp calculate sum of weights for signal and bkg
+        sig_weight = s_exp/K.sum( weights * y_true     )
+        bkg_weight = b_exp/K.sum( weights * (1-y_true) )
+
+        # What is classified as signal -> step function
+        # signal = y_pred - 0.5
+        # signal = tf.sign(signal)
+        # signal = (signal+1)/2 # this results in an array with 0 and 1 depending on y_pred
+
+        # What is classified as signal
+        signal = y_pred - 0.5  # this brings signal in the range [-0.5,+0.5]
+        signal = tf.sigmoid(100*signal) # apply sigmoid to make the function differentiable (signal = [0,1])
+        # The higher the pre-factor the steeper the sigmoid
+
+        # signal = tf.Print(signal,[signal],"signal = ",summarize=10)
+        # y_true = tf.Print(y_true,[y_true],"y_true = ",summarize=10)
+
+        # Calculate s and b as condition
+        s = K.sum( signal * y_true     * weights * sig_weight )
+        b = K.sum( signal * (1-y_true) * weights * bkg_weight )
+        # s = K.sum( y_true     * weights * sig_weight )
+        # b = K.sum( (1-y_true) * weights * bkg_weight )
+
+        # s = tf.Print(s,[s],"s = ",summarize=10)
+        # b = tf.Print(b,[b],"b = ",summarize=10)
+
+        return (s+b)/(s*s)
+
+    return sigmoid_significance_
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
