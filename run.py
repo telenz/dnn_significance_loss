@@ -48,6 +48,12 @@ reload(arch)
 reload(fcn)
 config.read(config_name)
 
+# For reproducibility
+os.environ['PYTHONHASHSEED'] = '0'
+rn.seed(12345)
+np.random.seed(1234)
+set_random_seed(1)
+
 print ''
 print 'batch_size = ' + str(config.get('KERAS','batch_size'))
 print 'epochs     = ' + str(config.get('KERAS','epochs'))
@@ -57,7 +63,7 @@ print ''
 # Define the architecure (!)
 input_weights = None
 #model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
-model = arch.susy(num_inputs = len(features), num_outputs = 1)
+model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
