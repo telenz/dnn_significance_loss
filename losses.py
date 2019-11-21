@@ -84,7 +84,7 @@ def asimovLossInvert(s_exp, b_exp, systematic):
         # The ratio s/b defines which approximation is used
         ratio = s/b
         loss_ = tf.cond(ratio < 0.01,
-                        lambda: 1./(s*s/b - sigma_b*sigma_b*s*s/(b*(b+sigma_b*sigma_b))),
+                        lambda: (b+sigma_b*sigma_b)/(s*s),
                         lambda: 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
                         )
 
