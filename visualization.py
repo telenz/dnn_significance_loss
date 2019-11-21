@@ -70,7 +70,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.plot([], [], ' ', label="val_acc : " + str(round(max(history.history['val_acc']),2)) + "  ;  val_loss : " + str(round(min(history.history['val_loss']),5)))
    plt.xlabel('NN probablity')
    plt.ylabel('Significance estimate')
-   plt.legend(loc=2)
+   plt.legend(loc=0, prop={'size': 15})
    plt.grid()
 
    plt.savefig("plots/significance_estimates.png")
