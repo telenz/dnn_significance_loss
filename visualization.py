@@ -35,7 +35,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.xlabel('NN probability')
    #plt.title('Classification Power')
    plt.yscale('log')
-   n_bins = 250
+   n_bins = 100
    h_bkg = plt.hist(df_bkg['pred_prob'], n_bins, facecolor=color1, alpha=0.6, cumulative=-1, weights=df_bkg[weight_name])
    h_sig = plt.hist(df_sig['pred_prob'], n_bins, facecolor=color2, alpha=0.6, cumulative=-1, weights=df_sig[weight_name])
    plt.legend(['Background','Signal'])
