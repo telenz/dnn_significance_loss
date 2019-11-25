@@ -58,7 +58,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    asimov_sys_0p3_with_reg  = sig.asimov_with_reg(0.3)
    asimov_sys_0p5_with_reg  = sig.asimov_with_reg(0.5)
 
-   plt.plot(bin_centers, sig.AMS(s,b),              color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),1)) )
+   plt.plot(bin_centers, sig.AMS(s,b),              color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),2)) )
    plt.plot(bin_centers, asimov_sys_0p01(s,b),      color=color4, linewidth=2.0, label='Z_asimov (sys=0.01) : ' + str(round(max(asimov_sys_0p01(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p1(s,b),       color=color3, linewidth=2.0, label='Z_asimov (sys=0.10) : ' + str(round(max(asimov_sys_0p1(s,b)),1)) )
    plt.plot(bin_centers, asimov_sys_0p3(s,b),       color=color5, linewidth=2.0, label='Z_asimov (sys=0.30) : ' + str(round(max(asimov_sys_0p3(s,b)),1)) )
@@ -95,9 +95,15 @@ def plot_prediction(df_test_with_pred):
    plt.xlabel('NN probablity')
    plt.ylabel('Events')
    plt.yscale('log')
-   #plt.title('Classification Power')
-   n, bins, patches = plt.hist(df_bkg['pred_prob'], 50, facecolor=color1, alpha=0.5, normed=True)
-   n, bins, patches = plt.hist(df_sig['pred_prob'], 50, facecolor=color2, alpha=0.5, normed=True)
+
+   # Normalize histograms
+   bkg_norm = df_bkg.shape[0]
+   sig_norm = df_sig.shape[0]
+   df_bkg['norm'] = 1./bkg_norm
+   df_sig['norm'] = 1./sig_norm
+
+   n, bins, patches = plt.hist(df_bkg['pred_prob'], 50, facecolor=color1, alpha=0.5, weights=df_bkg['norm'])
+   n, bins, patches = plt.hist(df_sig['pred_prob'], 50, facecolor=color2, alpha=0.5, weights=df_sig['norm'])
 
    plt.legend(['Background','Signal'])
 
