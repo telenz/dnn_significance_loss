@@ -81,9 +81,9 @@ def asimovLossInvert(s_exp, b_exp, systematic):
         # s  = tf.Print(s,[s],"s = ",summarize=10)
         # b  = tf.Print(b,[b],"b = ",summarize=10)
 
-        # The ratio s/b defines which approximation is used
-        ratio = s/b
-        loss_ = tf.cond(ratio < 0.01,
+        # The variable 'condition' defines which approximation is used
+        condition = s/b * sigma_b/(b+sigma_b*sigma_b)
+        loss_ = tf.cond(condition < 0.01,
                         lambda: (b+sigma_b*sigma_b)/(s*s),
                         lambda: 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
                         )
