@@ -88,8 +88,8 @@ def plot_prediction(df_test_with_pred):
    color2 = '#fbc96d' #'#ffa147'
 
    # the histogram of the data
-   df_sig = df_test_with_pred.loc[df_test_with_pred['signal']==1]
-   df_bkg = df_test_with_pred.loc[df_test_with_pred['signal']==0]
+   df_sig = df_test_with_pred[df_test_with_pred['signal']==1]
+   df_bkg = df_test_with_pred[df_test_with_pred['signal']==0]
 
    plt.figure(figsize=(15,8))
    plt.xlabel('NN probablity')
