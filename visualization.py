@@ -130,8 +130,10 @@ def plot_val_train_loss(history, plot_log = True):
     # Visualize loss history
     plt.plot(epoch_range, training_loss,   color1,  linewidth=4.0)
     plt.plot(epoch_range, validation_loss, color2,   linewidth=4.0)
-    plt.legend(['Training Loss    : ' + str(round( min(history.history["loss"]) ,6)),
-                'Validation Loss : ' + str(round( min(history.history["val_loss"]) ,6)) ])
+    # Find minimum of validation loss and corresponding training loss
+    min_idx = np.argmin(history.history["val_loss"])
+    plt.legend(['Training Loss    : ' + str(round( history.history["loss"][min_idx] ,6)),
+                'Validation Loss : ' + str(round( history.history["val_loss"][min_idx] ,6)) ])
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     out_name_suffix = ""
