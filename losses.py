@@ -114,7 +114,6 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
         # Contrain y_pred from below and above by epsilon
         y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
 
-
         ############################   Printing #####################################
         #print(K.int_shape(y_true))
 
@@ -135,11 +134,17 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
         s = K.sum( y_pred * y_true     * weights * sig_weight )
         b = K.sum( y_pred * (1-y_true) * weights * bkg_weight )
 
+        # Calculate uncertainty
         sigma_b   = systematic * b
         sigma_reg = 1.8410548  # this is  68% CL from the Neyman construction for N=0 -> thus the lowest statistical uncertainty that can be achieved (see : https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars)
         sigma_b   = K.sqrt(sigma_b*sigma_b + sigma_reg*sigma_reg)
 
-        loss_ = 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
+        # The variable 'condition' defines which approximation is used
+        condition = s/b * sigma_b/(b+sigma_b*sigma_b)
+        loss_ = tf.cond(condition < 0.01,
+                        lambda: (b+sigma_b*sigma_b)/(s*s),
+                        lambda: 1./(2*((s+b)*K.log((s+b)*(b+sigma_b*sigma_b)/(b*b+(s+b)*sigma_b*sigma_b))-b*b*K.log(1+sigma_b*sigma_b*s/(b*(b+sigma_b*sigma_b)))/(sigma_b*sigma_b)))
+                        )
 
         return loss_
 
