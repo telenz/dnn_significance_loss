@@ -99,8 +99,8 @@ def plot_prediction(df_test_with_pred):
    # Normalize histograms
    bkg_norm = df_bkg.shape[0]
    sig_norm = df_sig.shape[0]
-   df_bkg['norm'] = 1./bkg_norm
-   df_sig['norm'] = 1./sig_norm
+   df_bkg = df_bkg.assign(norm = 1./bkg_norm)
+   df_sig = df_sig.assign(norm = 1./sig_norm)
 
    n, bins, patches = plt.hist(df_bkg['pred_prob'], 50, range=[0,1], facecolor=color1, alpha=0.5, weights=df_bkg['norm'])
    n, bins, patches = plt.hist(df_sig['pred_prob'], 50, range=[0,1], facecolor=color2, alpha=0.5, weights=df_sig['norm'])
@@ -140,7 +140,7 @@ def plot_val_train_loss(history, plot_log = True):
     if plot_log:
        plt.yscale('log')
        out_name_suffix = "_log"
-    plt.show(block=False);
+    #plt.show(block=False);
     if not os.path.exists('plots'):
         os.makedirs('plots')
     plt.savefig("plots/loss" + out_name_suffix + ".png")
