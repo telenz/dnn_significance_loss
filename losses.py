@@ -153,7 +153,7 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def sigmoid_significance(s_exp, b_exp, systematic):
+def sigmoid_significance(s_exp, b_exp, unused):
 
     def sigmoid_significance_(y_true_with_weights,y_pred):
 
@@ -173,23 +173,33 @@ def sigmoid_significance(s_exp, b_exp, systematic):
         # signal = (signal+1)/2 # this results in an array with 0 and 1 depending on y_pred
 
         # What is classified as signal
-        signal = y_pred - 0.5  # this brings signal in the range [-0.5,+0.5]
-        signal = tf.sigmoid(100*signal) # apply sigmoid to make the function differentiable (signal = [0,1])
+        y_pred_transformed = y_pred - 0.5  # this brings signal in the range [-0.5,+0.5]
+        # apply sigmoid to make the function differentiable
+        alpha = 100
+        activation_s = tf.sigmoid(alpha* (y_pred - 0.5))
+        activation_b = tf.sigmoid(alpha* (y_pred - 0.5))
         # The higher the pre-factor the steeper the sigmoid
 
-        # signal = tf.Print(signal,[signal],"signal = ",summarize=10)
+        # activation_s = tf.Print(activation_s,[activation_s],"activation_s = ",summarize=10)
+        # activation_b = tf.Print(activation_b,[activation_b],"activation_b = ",summarize=10)
         # y_true = tf.Print(y_true,[y_true],"y_true = ",summarize=10)
 
         # Calculate s and b as condition
-        s = K.sum( signal * y_true     * weights * sig_weight )
-        b = K.sum( signal * (1-y_true) * weights * bkg_weight )
+        s = K.sum( activation_s * y_true     * weights * sig_weight )
+        b = K.sum( activation_b * (1-y_true) * weights * bkg_weight )
         # s = K.sum( y_true     * weights * sig_weight )
         # b = K.sum( (1-y_true) * weights * bkg_weight )
 
         # s = tf.Print(s,[s],"s = ",summarize=10)
         # b = tf.Print(b,[b],"b = ",summarize=10)
 
-        return (s+b)/(s*s)
+        sig_ = (s+b)/(s*s)
+
+        br = 10.0
+        radicand = 2 *( (s+b+br) * K.log(1.0 + s/(b+br)) -s)
+        ams = K.sqrt(radicand)
+
+        return 1./ams
 
     return sigmoid_significance_
 
