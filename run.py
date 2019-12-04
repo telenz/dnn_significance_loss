@@ -73,9 +73,8 @@ print 'patience   = ' + str(config.get('KERAS','patience'))
 print ''
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
-input_weights = None
-#model, input_weights = arch.model_for_weights(num_inputs = len(features), num_outputs = 1)
-model = arch.susy_2(num_inputs = len(features), num_outputs = 1)
+architecture = getattr(arch, config.get('KERAS','architecture') )
+model = architecture(num_inputs = len(features), num_outputs = 1)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
@@ -100,14 +99,8 @@ else:
     
 #----------------------------------------------------------------------------------------------------
 # Compile the model
-if input_weights is not None:
-    loss_=fcn.wrapped_partial(loss_from_config,weights=input_weights)
-else:
-    loss_=loss_from_config
-    print loss_
+loss_=loss_from_config
 print loss_
-
-#Y_train  = fcn.encode_weights(Y_train['signal'],X_train['Weight_corrected_by_lumi'])
     
 model.compile(loss=loss_,
               optimizer=config.get('KERAS','optimizer'),
