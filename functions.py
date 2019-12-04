@@ -3,8 +3,10 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 import ConfigParser
 import keras
+import math
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
@@ -59,7 +61,7 @@ def prepare_features(data, features):
     data_list=list(data.columns)
     data_scaled_list=list(data_scaled.columns)
     non_feature_elements = list(set(data_list).difference(data_scaled_list))
-    print "list of non-feature elements = " + str(non_feature_elements)
+    print "\nList of non-feature elements = " + str(non_feature_elements)
     if len(non_feature_elements) != 0 :
         data_scaled = data_scaled.join( data[non_feature_elements], how='inner')
 
@@ -68,19 +70,66 @@ def prepare_features(data, features):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def prepare_df(data, features):
+def prepare_df(data, features, data_augmentation_train_time = False, data_augmentation_test_time = False, n_augmentations = 0):
 
     # Scale data to mean=0 and stdv=1
     data_scaled = prepare_features(data, features)
 
-    # Split dataframe to dfs that either contain all variables except 'signal' or containing only 'signal'
-    X = data_scaled.drop(["signal"], axis=1, inplace=False)
-    Y = data_scaled[["signal"]]
-
     # Split dataset into test and training set -> use 30% for final testing
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.30, random_state=1143)
+    data_train, data_test = train_test_split(data_scaled, test_size=0.30, random_state=1143)
+
+    if data_augmentation_train_time:
+        data_train = augment_data(data_train, n_augmentations = n_augmentations)
+    if data_augmentation_test_time:
+        data_test  = augment_data(data_test , n_augmentations = n_augmentations)
+
+    # Split dataframe to dfs that either contain all variables except 'signal' or containing only 'signal'
+    X_train = data_train.drop(["signal"], axis=1, inplace=False)
+    Y_train = data_train[["signal"]]
+
+    X_test = data_test.drop(["signal"], axis=1, inplace=False)
+    Y_test = data_test[["signal"]]
 
     return X_train, X_test, Y_train, Y_test
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def augment_data(df, n_augmentations):
+
+    # Define ouput dataframe
+    df_augmented = df.copy()
+
+    # Define phi transformations between alpha = [-1,1] with phi -> phi + alpha*pi
+    spacing = 2./(n_augmentations)
+    alpha_list = [-1 + x*spacing for x in range(0, n_augmentations)]
+    if 0.0 in alpha_list:
+        alpha_list.remove(0.0)
+    print "\nFollowing phi transformations are applied: phi -> phi + alpha*pi with"
+    print "alpha = " + str(["%0.2f" % i for i in alpha_list]) + "\n"
+
+    # Non-invariant variables
+    vars_for_eta_transformation = ["PRI_tau_eta", "PRI_lep_eta", "PRI_jet_leading_eta", "PRI_jet_subleading_eta"]
+    vars_for_phi_transformation = ["PRI_tau_phi", "PRI_lep_phi", "PRI_jet_leading_phi", "PRI_jet_subleading_phi", "PRI_met_phi"]
+
+    # Copy dataframe and transform all variables that are not invariant under eta and phi transformations
+    df_copy = df.copy()
+    for var in vars_for_eta_transformation:
+        df_copy[var] = np.where(df_copy[var] != -10, -df_copy[var], df_copy[var])
+    df_augmented = df_augmented.append(df_copy)
+
+    for alpha in alpha_list:
+        df_copy = df.copy()
+        for var in vars_for_phi_transformation:
+            df_copy[var] = np.where(df_copy[var] != -10   , df_copy[var] + alpha*math.pi, df_copy[var])
+            df_copy[var] = np.where(df_copy[var] >= math.pi, df_copy[var]-2*math.pi      , df_copy[var])
+            df_copy[var] = np.where(df_copy[var] < -math.pi, df_copy[var]+2*math.pi      , df_copy[var])
+        df_augmented = df_augmented.append(df_copy)
+
+    # Shuffle data and reset the index
+    df_augmented = df_augmented.sample(frac=1).reset_index(drop=True)
+
+    return df_augmented
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------

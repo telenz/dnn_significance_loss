@@ -33,9 +33,21 @@ elif source_data == 'susy':
 
 config = ConfigParser.ConfigParser()
 config.read(config_name)
+
 data = fcn.add_train_weights(data)
-data = fcn.add_weight_corrected_by_lumi(data, data, config)
-X_train, X_test, Y_train, Y_test = fcn.prepare_df(data, features)
+
+augment_data_at_train_time = config.getboolean('KERAS','data_augmentation_train_time')
+augment_data_at_test_time  = config.getboolean('KERAS','data_augmentation_test_time')
+n_augmentations = int(config.get('KERAS','n_augmentations'))
+
+print "\ntrain-time data augmentation = " + str(augment_data_at_train_time)
+print "test-time data augmentation  = " + str(augment_data_at_test_time)
+print "number of augmentations = " + str(n_augmentations)
+
+X_train, X_test, Y_train, Y_test = fcn.prepare_df(data, features,
+                                                  data_augmentation_train_time = augment_data_at_train_time,
+                                                  data_augmentation_test_time  = augment_data_at_test_time,
+                                                  n_augmentations = n_augmentations)
 X_train = fcn.add_weight_corrected_by_lumi(X_train, Y_train, config)
 X_test  = fcn.add_weight_corrected_by_lumi(X_test, Y_test, config)
 #----------------------------------------------------------------------------------------------------
@@ -104,7 +116,7 @@ model.compile(loss=loss_,
 d=model.summary()
 #----------------------------------------------------------------------------------------------------
 # Training or Reading model
-if config.get('KERAS','train')=="True":
+if config.getboolean('KERAS','train'):
     # Train the network
     history =  fcn.train_model(model, X_train, Y_train, features, 
                                cb_list, config, sample_weights = sample_weights_)
