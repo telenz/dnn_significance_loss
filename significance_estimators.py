@@ -1,6 +1,10 @@
 from numpy import sqrt, log, power
 
 def z_asimov(s, b, sys=0.000001):
+
+    if sys == 0 :
+        return sqrt( 2.0*( (s+b)*log(1+s/b) -s ) )
+
     return sqrt( -2.0/(sys*sys)*log( b/( b+(b*b)*(sys*sys))*(sys*sys)*s+1.0)+ 2.0*(b+s)*log(( b+s)*( b+(b*b)*(sys*sys))/( (b*b)+( b+s)*(b*b)*(sys*sys))))
 
 # def z_asimov(s, b, sys=0.000001):
