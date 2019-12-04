@@ -59,6 +59,10 @@ def plot_significances(df_test_with_pred, weight_name, history):
    asimov_sys_0p3_with_reg  = sig.asimov_with_reg(0.3)
    asimov_sys_0p5_with_reg  = sig.asimov_with_reg(0.5)
 
+   # Get optimal cut value for AMS
+   idx_max = np.argmax(sig.AMS(s,b))
+   optimal_cut_value = bin_centers[idx_max]
+
    ams_func =  plt.plot(bin_centers, sig.AMS(s,b), color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),2)) )
    y_ams = ams_func[0].get_ydata()
    plt.plot(bin_centers, asimov_sys_0p0(s,b),      color=color4, linewidth=2.0, label='Z_asimov (sys=0.0) : ' + str(round(max(asimov_sys_0p01(s,b)),1)) )
@@ -71,6 +75,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)))
    plt.plot([], [], ' ', label="val_acc : " + str(round(max(history.history['val_acc']),2)) + "  ;  val_loss : " + str(round(min(history.history['val_loss']),5)))
    plt.plot([], [], ' ', label="AMS value at 0.5 = " + str(round(y_ams[n_bins/2],2)))
+   plt.plot([], [], ' ', label="optimal cut value = " + str(round(optimal_cut_value,2)))
 
    plt.xlabel('NN probablity cut value')
    plt.ylabel('Significance estimate')
@@ -78,10 +83,6 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.grid()
 
    plt.savefig("plots/significance_estimates.png")
-
-   # Get optimal cut value for AMS
-   idx_max = np.argmax(sig.AMS(s,b))
-   optimal_cut_value = bin_centers[idx_max]
 
    return optimal_cut_value
 
