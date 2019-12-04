@@ -3,6 +3,9 @@ from numpy import sqrt, log, power
 def z_asimov(s, b, sys=0.000001):
     return sqrt( -2.0/(sys*sys)*log( b/( b+(b*b)*(sys*sys))*(sys*sys)*s+1.0)+ 2.0*(b+s)*log(( b+s)*( b+(b*b)*(sys*sys))/( (b*b)+( b+s)*(b*b)*(sys*sys))))
 
+# def z_asimov(s, b, sys=0.000001):
+#     return sqrt( -2.0*b/sys*log( sys*s/(b+b*sys)+1.0)+ 2.0*(s+b)*log( (s+b)*(b+b*sys)/( (b*b)+(s+b)*b*sys)))
+
 def ez_asimov(s, es, b, eb, sys=0.000001):
     return power(-(eb*eb)/( 1.0/(sys*sys)*log( b/( b+(b*b)*(sys*sys))*(sys*sys)*s+1.0)-(
                 b+s)*log(( b+s)*( b+(b*b)*(sys*sys))/( (b*b)+( b+s)*(b*b)*(sys*sys))))*power(
