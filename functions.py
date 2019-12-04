@@ -75,6 +75,9 @@ def prepare_df(data, features, data_augmentation_train_time = False, data_augmen
     # Scale data to mean=0 and stdv=1
     data_scaled = prepare_features(data, features)
 
+    # # Make pca (don't reduce number of variables for now)
+    # data_scaled = make_pca(data_scaled, features, len(features))
+
     # Split dataset into test and training set -> use 30% for final testing
     data_train, data_test = train_test_split(data_scaled, test_size=0.30, random_state=1143)
 
@@ -130,6 +133,33 @@ def augment_data(df, n_augmentations):
     df_augmented = df_augmented.sample(frac=1).reset_index(drop=True)
 
     return df_augmented
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+def make_pca(df, features, n_pca):
+
+    print "\n.... Make PCA ....\n"
+
+    # Get non-features for later
+    columns = list(df.columns)
+    non_feature_elements = list(set(columns).difference(features))
+    print "\nList of non-feature elements = " + str(non_feature_elements)
+
+    # Make principal component analysis
+    pca = PCA(n_components = n_pca)
+    principal_components = pca.fit_transform(df[features])
+    principal_df = pandas.DataFrame(data = principal_components, columns = features)
+
+    # Now scale the features again with the StandardScaler
+    ss = StandardScaler()
+    principal_df_scaled = pandas.DataFrame(ss.fit_transform(principal_df[features]), columns = principal_df[features].columns, index = principal_df.index) # add index =... is very important since wo the new df would have new indices which makes a concat later impossible
+
+    # Add non-feature elements again
+    if len(non_feature_elements) != 0 :
+        principal_df_scaled = principal_df_scaled.join( df[non_feature_elements], how='inner')
+
+    return principal_df_scaled
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
