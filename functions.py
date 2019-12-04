@@ -186,7 +186,7 @@ def make_kaggle_csv_file(df, cut_value = 0.5):
     df.loc[df['pred_prob']>=cut_value,'Class'] = 's'
     df = df.drop('pred_prob',axis=1)
     df = df.sort_values(by=['EventId'])
-    df.to_csv('submission_tlenz.csv')
+    df.to_csv('plots/submission_tlenz.csv')
 
     return df
 
