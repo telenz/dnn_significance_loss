@@ -50,6 +50,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    b = b[:n_bins_filled]
    bin_centers = bin_centers[:n_bins_filled]
 
+   asimov_sys_0p0  = sig.asimov(0.0)
    asimov_sys_0p01 = sig.asimov(0.01)
    asimov_sys_0p1  = sig.asimov(0.1)
    asimov_sys_0p3  = sig.asimov(0.3)
@@ -58,16 +59,19 @@ def plot_significances(df_test_with_pred, weight_name, history):
    asimov_sys_0p3_with_reg  = sig.asimov_with_reg(0.3)
    asimov_sys_0p5_with_reg  = sig.asimov_with_reg(0.5)
 
-   plt.plot(bin_centers, sig.AMS(s,b),              color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),2)) )
-   plt.plot(bin_centers, asimov_sys_0p01(s,b),      color=color4, linewidth=2.0, label='Z_asimov (sys=0.01) : ' + str(round(max(asimov_sys_0p01(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p1(s,b),       color=color3, linewidth=2.0, label='Z_asimov (sys=0.10) : ' + str(round(max(asimov_sys_0p1(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p3(s,b),       color=color5, linewidth=2.0, label='Z_asimov (sys=0.30) : ' + str(round(max(asimov_sys_0p3(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p5(s,b),       color=color9, linewidth=2.0, label='Z_asimov (sys=0.50) : ' + str(round(max(asimov_sys_0p5(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p1_with_reg(s,b),       color=color13, linewidth=2.0, label='Z_asimov_with_reg (sys=0.10) : ' + str(round(max(asimov_sys_0p1_with_reg(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p3_with_reg(s,b),       color=color14, linewidth=2.0, label='Z_asimov_with_reg (sys=0.30) : ' + str(round(max(asimov_sys_0p3_with_reg(s,b)),1)) )
-   plt.plot(bin_centers, asimov_sys_0p5_with_reg(s,b),       color=color15, linewidth=2.0, label='Z_asimov_with_reg (sys=0.50) : ' + str(round(max(asimov_sys_0p5_with_reg(s,b)),1)) )
+   ams_func =  plt.plot(bin_centers, sig.AMS(s,b), color=color1, linewidth=2.0, label='AMS : ' + str(round(max(sig.AMS(s,b)),2)) )
+   y_ams = ams_func[0].get_ydata()
+   plt.plot(bin_centers, asimov_sys_0p0(s,b),      color=color4, linewidth=2.0, label='Z_asimov (sys=0.0) : ' + str(round(max(asimov_sys_0p01(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p1(s,b),       color=color3, linewidth=2.0, label='Z_asimov (sys=0.10) : ' + str(round(max(asimov_sys_0p1(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p3(s,b),       color=color5, linewidth=2.0, label='Z_asimov (sys=0.30) : ' + str(round(max(asimov_sys_0p3(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p5(s,b),       color=color9, linewidth=2.0, label='Z_asimov (sys=0.50) : ' + str(round(max(asimov_sys_0p5(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p1_with_reg(s,b),       color=color13, linewidth=2.0, label='Z_asimov_with_reg (sys=0.10) : ' + str(round(max(asimov_sys_0p1_with_reg(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p3_with_reg(s,b),       color=color14, linewidth=2.0, label='Z_asimov_with_reg (sys=0.30) : ' + str(round(max(asimov_sys_0p3_with_reg(s,b)),1)) )
+   # plt.plot(bin_centers, asimov_sys_0p5_with_reg(s,b),       color=color15, linewidth=2.0, label='Z_asimov_with_reg (sys=0.50) : ' + str(round(max(asimov_sys_0p5_with_reg(s,b)),1)) )
    plt.plot(bin_centers, sig.s_over_sqrt_of_b(s,b), color=color7, linewidth=2.0, dashes=[6, 2], label='s/sqrt(b) : ' + str(round(max(sig.s_over_sqrt_of_b(s,b)),1)))
    plt.plot([], [], ' ', label="val_acc : " + str(round(max(history.history['val_acc']),2)) + "  ;  val_loss : " + str(round(min(history.history['val_loss']),5)))
+   plt.plot([], [], ' ', label="AMS value at 0.5 = " + str(round(y_ams[n_bins/2],2)))
+
    plt.xlabel('NN probablity cut value')
    plt.ylabel('Significance estimate')
    plt.legend(loc=0, prop={'size': 15})
@@ -80,7 +84,6 @@ def plot_significances(df_test_with_pred, weight_name, history):
    optimal_cut_value = bin_centers[idx_max]
 
    return optimal_cut_value
-
 
 def plot_prediction(df_test_with_pred):
     
