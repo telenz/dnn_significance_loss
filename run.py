@@ -75,6 +75,7 @@ print ''
 # Define the architecure (!)
 architecture = getattr(arch, config.get('KERAS','architecture') )
 model = architecture(num_inputs = len(features), num_outputs = 1)
+print "\nArchitecture = " + str(architecture.__name__)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
@@ -92,7 +93,6 @@ if config.get('KERAS','loss') != 'binary_crossentropy':
     Y_test  = pandas.concat([Y_test['signal'],X_test["Weight_corrected_by_lumi"]], axis=1)
     # Set sample weights correctly
     sample_weights_ = ''
-    print loss_from_config
 else:
     loss_from_config = 'binary_crossentropy'
     sample_weights_ = 'train_weight'
@@ -100,7 +100,7 @@ else:
 #----------------------------------------------------------------------------------------------------
 # Compile the model
 loss_=loss_from_config
-print loss_
+print "\nLoss = " + str(loss_.__name__)
     
 model.compile(loss=loss_,
               optimizer=config.get('KERAS','optimizer'),
