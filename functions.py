@@ -6,6 +6,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import ConfigParser
 import keras
+from keras import backend as K
+import tensorflow as tf
 import math
 
 # ------------------------------------------------------------------------------------------------------------
@@ -322,6 +324,18 @@ def train_model(model, X_train, Y_train, features, cb_list, config, sample_weigh
                          callbacks        = cb_list)
 
     return history
+
+# ------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------
+
+# Get a new callback to access number of epochs in the user-defined loss function
+class NewCallback_alpha_increase(tf.keras.callbacks.Callback):
+    def __init__(self, alpha):
+        self.alpha =  K.variable(alpha)
+    def on_epoch_end(self, epoch, logs={}):
+        if (epoch+1)%20 == 0:
+            K.set_value( self.alpha, K.get_value(self.alpha) * 1.02 )
+            print "....................... Epoch " + str(epoch+1) + " : Increasing alpha in sigmoid function to " + str(round(K.get_value(self.alpha),1)) + " !"
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------

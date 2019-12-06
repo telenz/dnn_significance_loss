@@ -66,20 +66,37 @@ rn.seed(12345)
 np.random.seed(1234)
 set_random_seed(1)
 
+# Read config parameters
+cfg_systematic_or_alpha = float( config.get('KERAS','systematic') )
+cfg_batch_size          = float( config.get('KERAS','batch_size') )
+cfg_epochs              = float( config.get('KERAS','epochs') )
+cfg_patience            = float( config.get('KERAS','patience') )
+cfg_architecture        = config.get('KERAS','architecture')
+cfg_increase_alpha_bool = config.getboolean('KERAS','increasing_alpha')
+cfg_s_exp               = float(config.get('PARAMETERS','s_exp'))
+cfg_b_exp               = float(config.get('PARAMETERS','b_exp'))
+
 print ''
-print 'batch_size = ' + str(config.get('KERAS','batch_size'))
-print 'epochs     = ' + str(config.get('KERAS','epochs'))
-print 'patience   = ' + str(config.get('KERAS','patience'))
+print 'batch_size       = ' + str(cfg_batch_size)
+print 'epochs           = ' + str(cfg_epochs)
+print 'patience         = ' + str(cfg_patience)
+print 'systematic/alpha = ' + str(cfg_systematic_or_alpha)
 print ''
 #----------------------------------------------------------------------------------------------------
 # Define the architecure (!)
-architecture = getattr(arch, config.get('KERAS','architecture') )
+architecture = getattr(arch, cfg_architecture)
 model = architecture(num_inputs = len(features), num_outputs = 1)
 print "\nArchitecture = " + str(architecture.__name__)
 #----------------------------------------------------------------------------------------------------
 # Define callbacks
 cb = fcn.define_callbacks(config)
 cb_list = [cb]
+# If alpha is supposed to be increased during training add new (user-defined) callback
+systematic_or_alpha = cfg_systematic_or_alpha
+if cfg_increase_alpha_bool:
+    callback_alpha_increasing = fcn.NewCallback_alpha_increase( cfg_systematic_or_alpha )
+    cb_list.append(callback_alpha_increasing)
+    systematic_or_alpha = callback_alpha_increasing.alpha
 #----------------------------------------------------------------------------------------------------
 # Add optimizer options
 keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
@@ -87,7 +104,7 @@ keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
 # Get the right loss function (from the config)
 if config.get('KERAS','loss') != 'binary_crossentropy':
     loss_function = getattr( loss, config.get('KERAS','loss') )
-    loss_from_config = loss_function(float(config.get('PARAMETERS','s_exp')), float(config.get('PARAMETERS','b_exp')), float(config.get('KERAS','systematic')))
+    loss_from_config = loss_function(cfg_s_exp, cfg_b_exp, systematic_or_alpha)
     # Set also Y to two dimensions
     Y_train = pandas.concat([Y_train['signal'],X_train["Weight_corrected_by_lumi"]], axis=1)
     Y_test  = pandas.concat([Y_test['signal'],X_test["Weight_corrected_by_lumi"]], axis=1)

@@ -1,6 +1,7 @@
 from __future__ import print_function
 from keras import backend as K
 import tensorflow as tf
+import functions as fcn
 
 
 
@@ -156,11 +157,13 @@ def asimovLossInvertWithReg(s_exp, b_exp, systematic):
 
 def sigmoid_significance(s_exp, b_exp, alpha):
 
+    # alpha = tf.Print(alpha,[alpha],"alpha = ",summarize=100)
+
     def sigmoid_significance_(y_true_with_weights,y_pred):
 
-        # Define an increasing alpha called alpha_incr
-        alpha_incr = tf.Variable(alpha, dtype=tf.float32)
-        assign_op = tf.assign(alpha_incr, alpha_incr+0.02 )
+        # # Define an increasing alpha called alpha_incr
+        # alpha_incr = tf.Variable(alpha, dtype=tf.float32)
+        # assign_op = tf.assign(alpha_incr, alpha_incr+0.02 )
 
         # Split y_true_with_weights to y_true and weights
         y_true, weights = tf.split(y_true_with_weights,[1,1],axis=1)
@@ -172,11 +175,14 @@ def sigmoid_significance(s_exp, b_exp, alpha):
         sig_weight = s_exp/K.sum( weights * y_true     )
         bkg_weight = b_exp/K.sum( weights * (1-y_true) )
 
-        # Apply sigmoid to make the function differentiable (the higher alpha the steeper the sigmoid)
-        with tf.control_dependencies([assign_op]):
-            # alpha_incr = tf.Print(alpha_incr,[alpha_incr],"alpha_incr = ",summarize=100)
-            activation_s = tf.sigmoid(alpha_incr * (y_pred - 0.5))
-            activation_b = tf.sigmoid(alpha_incr * (y_pred - 0.5))
+        # # Apply sigmoid to make the function differentiable (the higher alpha the steeper the sigmoid)
+        # with tf.control_dependencies([assign_op]):
+        #     # alpha_incr = tf.Print(alpha_incr,[alpha_incr],"alpha_incr = ",summarize=100)
+        #     activation_s = tf.sigmoid(alpha_incr * (y_pred - 0.5))
+        #     activation_b = tf.sigmoid(alpha_incr * (y_pred - 0.5))
+
+        activation_s = tf.sigmoid(alpha * (y_pred - 0.5))
+        activation_b = tf.sigmoid(alpha * (y_pred - 0.5))
 
         # Calculate s and b as condition
         s = K.sum( activation_s * y_true     * weights * sig_weight )
