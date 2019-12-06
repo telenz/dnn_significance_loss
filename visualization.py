@@ -39,7 +39,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    h_bkg = plt.hist(df_bkg['pred_prob'], n_bins, range=[0,1], facecolor=color1, alpha=0.6, cumulative=-1, weights=df_bkg[weight_name])
    h_sig = plt.hist(df_sig['pred_prob'], n_bins, range=[0,1], facecolor=color2, alpha=0.6, cumulative=-1, weights=df_sig[weight_name])
    plt.legend(['Background','Signal'])
-   plt.savefig("plots/cumulative_classifier_plot.png")
+   plt.savefig("results/cumulative_classifier_plot.png")
    
 
    s, b = h_sig[0], h_bkg[0]
@@ -82,7 +82,7 @@ def plot_significances(df_test_with_pred, weight_name, history):
    plt.legend(loc=0, prop={'size': 15})
    plt.grid()
 
-   plt.savefig("plots/significance_estimates.png")
+   plt.savefig("results/significance_estimates.png")
 
    return optimal_cut_value
 
@@ -112,9 +112,9 @@ def plot_prediction(df_test_with_pred):
    plt.legend(['Background','Signal'])
 
    #plt.show()
-   if not os.path.exists('plots'):
-       os.makedirs('plots')
-   plt.savefig("plots/classification.png")
+   if not os.path.exists('results'):
+       os.makedirs('results')
+   plt.savefig("results/classification.png")
 
 def plot_val_train_loss(history, plot_log = True):
 
@@ -145,9 +145,9 @@ def plot_val_train_loss(history, plot_log = True):
        plt.yscale('log')
        out_name_suffix = "_log"
     #plt.show(block=False);
-    if not os.path.exists('plots'):
-        os.makedirs('plots')
-    plt.savefig("plots/loss" + out_name_suffix + ".png")
+    if not os.path.exists('results'):
+        os.makedirs('results')
+    plt.savefig("results/loss" + out_name_suffix + ".png")
 
 
 def plot_val_train_loss_plotly(history):

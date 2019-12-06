@@ -203,7 +203,7 @@ def make_prediction_higgs(model, X_test, Y_test, features, config):
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 
-def make_kaggle_csv_file(df, cut_value = 0.5):
+def make_kaggle_csv_file(df, cut_value = 0.5, output_folder = "results" ):
 
     # Write a csv file with the following entries:
     # EventId, Class (which is s or b), RankOrder (1= most bkg-like, 550000=most signal-like)
@@ -216,7 +216,7 @@ def make_kaggle_csv_file(df, cut_value = 0.5):
     df.loc[df['pred_prob']>=cut_value,'Class'] = 's'
     df = df.drop('pred_prob',axis=1)
     df = df.sort_values(by=['EventId'])
-    df.to_csv('plots/submission_tlenz.csv')
+    df.to_csv(output_folder + '/submission_tlenz.csv')
 
     return df
 

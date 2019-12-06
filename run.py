@@ -127,8 +127,8 @@ df_pred = fcn.make_prediction_higgs(model, X_test, Y_test, features, config)
 reload(sig)
 reload(vis)
 reload(sig)
-# Remove old plots from plots folder
-os.system('rm plots/*')
+# Remove old plots from results folder
+os.system('rm results/*')
 # Make loss vs epochs plot
 vis.plot_val_train_loss(history, plot_log = False)
 vis.plot_val_train_loss(history, plot_log = True)
@@ -136,6 +136,12 @@ vis.plot_val_train_loss(history, plot_log = True)
 vis.plot_prediction(df_pred)
 # Get significance estimates
 optimal_cut_value = vis.plot_significances(df_pred, "Weight_corrected_by_lumi", history)
+# Copy full framework to results folder
+if not os.path.exists('results/framework'):
+    os.makedirs('results/framework')
+
+os.system('cp *.py results/framework/.')
+os.system('cp *.cfg results/framework/.')
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 #### Make prediction on test.csv for higgs kaggle challenge ####
@@ -145,7 +151,7 @@ if source_data == 'higgs':
     data_test, features = fcn.read_higgs_data_from_csv("data/higgs-kaggle-challenge/test.csv")
     data_scaled         = fcn.prepare_features(data_test, features)
     df_pred_test        = fcn.make_prediction_higgs(model, data_scaled, None, features, config)
-    df_csv              = fcn.make_kaggle_csv_file(df_pred_test,cut_value=optimal_cut_value)
+    df_csv              = fcn.make_kaggle_csv_file(df_pred_test,cut_value=optimal_cut_value, "results")
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 # =============================================================================
