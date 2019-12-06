@@ -127,8 +127,8 @@ def augment_data(df, n_augmentations):
         df_copy = df.copy()
         for var in vars_for_phi_transformation:
             df_copy[var] = np.where(df_copy[var] != -10   , df_copy[var] + alpha*math.pi, df_copy[var])
-            df_copy[var] = np.where(df_copy[var] >= math.pi, df_copy[var]-2*math.pi      , df_copy[var])
-            df_copy[var] = np.where(df_copy[var] < -math.pi, df_copy[var]+2*math.pi      , df_copy[var])
+            df_copy[var] = np.where((df_copy[var] >= math.pi) & (df_copy[var] != -10), df_copy[var]-2*math.pi , df_copy[var])
+            df_copy[var] = np.where((df_copy[var] < -math.pi) & (df_copy[var] != -10), df_copy[var]+2*math.pi , df_copy[var])
         df_augmented = df_augmented.append(df_copy)
 
     # Shuffle data and reset the index
