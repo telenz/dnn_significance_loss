@@ -117,7 +117,7 @@ else:
 #----------------------------------------------------------------------------------------------------
 # Compile the model
 loss_=loss_from_config
-print "\nLoss = " + str(loss_.__name__)
+print "\nLoss = " + str(loss_)
     
 model.compile(loss=loss_,
               optimizer=config.get('KERAS','optimizer'),
