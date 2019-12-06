@@ -151,7 +151,7 @@ if source_data == 'higgs':
     data_test, features = fcn.read_higgs_data_from_csv("data/higgs-kaggle-challenge/test.csv")
     data_scaled         = fcn.prepare_features(data_test, features)
     df_pred_test        = fcn.make_prediction_higgs(model, data_scaled, None, features, config)
-    df_csv              = fcn.make_kaggle_csv_file(df_pred_test,cut_value=optimal_cut_value, "results")
+    df_csv              = fcn.make_kaggle_csv_file(df_pred_test,cut_value=optimal_cut_value, output_folder = "results")
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 # =============================================================================
