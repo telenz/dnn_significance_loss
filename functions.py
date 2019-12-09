@@ -334,7 +334,7 @@ class NewCallback_alpha_increase(tf.keras.callbacks.Callback):
         self.alpha =  K.variable(alpha)
     def on_epoch_end(self, epoch, logs={}):
         if (epoch+1)%20 == 0:
-            K.set_value( self.alpha, K.get_value(self.alpha) * 1.02 )
+            K.set_value( self.alpha, K.get_value(self.alpha) * 1.2 )
             print "....................... Epoch " + str(epoch+1) + " : Increasing alpha in sigmoid function to " + str(round(K.get_value(self.alpha),1)) + " !"
 
 # ------------------------------------------------------------------------------------------------------------
