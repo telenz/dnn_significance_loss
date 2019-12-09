@@ -39,5 +39,7 @@ plt.text(4, 0.8, r'$\sigma(x)=\frac{1}{1+e^{-x}}$', fontsize=15)
 plt.xlabel('X Axis')
 plt.ylabel('Y Axis')
 
+#plt.yscale('log')
+
 # create the graph
 plt.show()
