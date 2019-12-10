@@ -4,6 +4,7 @@
 *.ipynb
 models/*
 plots/*
+results*/*
 data/*
 *.png
 *.csv
