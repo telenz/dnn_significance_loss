@@ -73,10 +73,12 @@ cfg_epochs              = float( config.get('KERAS','epochs') )
 cfg_patience            = float( config.get('KERAS','patience') )
 cfg_architecture        = config.get('KERAS','architecture')
 cfg_increase_alpha_bool = config.getboolean('KERAS','increasing_alpha')
+cfg_learning_rate       = float( config.get('KERAS','learning_rate') )
 cfg_s_exp               = float(config.get('PARAMETERS','s_exp'))
 cfg_b_exp               = float(config.get('PARAMETERS','b_exp'))
 
 print ''
+print 'learning rate    = ' + str(cfg_learning_rate)
 print 'batch_size       = ' + str(cfg_batch_size)
 print 'epochs           = ' + str(cfg_epochs)
 print 'patience         = ' + str(cfg_patience)
@@ -99,7 +101,7 @@ if cfg_increase_alpha_bool:
     systematic_or_alpha = callback_alpha_increasing.alpha
 #----------------------------------------------------------------------------------------------------
 # Add optimizer options
-keras.optimizers.Adam(lr=float(config.get('KERAS','learning_rate')))
+user_defined_optimizer = keras.optimizers.Adam(lr=cfg_learning_rate)
 #----------------------------------------------------------------------------------------------------
 # Get the right loss function (from the config)
 if config.get('KERAS','loss') != 'binary_crossentropy':
@@ -120,7 +122,7 @@ loss_=loss_from_config
 print "\nLoss = " + str(loss_)
     
 model.compile(loss=loss_,
-              optimizer=config.get('KERAS','optimizer'),
+              optimizer=user_defined_optimizer,
               metrics=[config.get('KERAS','metrics')])
 
 d=model.summary()
